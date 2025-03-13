@@ -123,7 +123,7 @@
                 <table class="summary-table">
                     <thead>
                         <tr>
-                            <th class="summary-param">Parameter</th>
+                            <th class="summary-param">Option</th>
                             <th class="summary-category">Category</th>
                             <th class="summary-value">New Value</th>
                             <th class="summary-default">Default</th>

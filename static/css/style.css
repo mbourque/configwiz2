@@ -2273,11 +2273,17 @@ END OLD STYLES */
 
 /* Fix download button wrapping */
 a#download-config-btn {
-    white-space: nowrap;
-    padding: 8px 16px;
-    min-width: 200px;
-    text-align: center;
-    display: inline-block;
+    white-space: normal !important; /* Allow text to wrap */
+    padding: 10px 20px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    display: inline-block !important;
+    overflow: visible !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    line-height: 1.4 !important;
+    font-size: 16px !important; /* Standard button text size */
 }
 
 /* Improve table layout */
@@ -2414,4 +2420,167 @@ a#download-config-btn {
 /* Remove the top border added to non-first rows since we're using spacing */
 .summary-table tr:not(.param-description-row):not(:first-child) {
     border-top: none;
+}
+
+/* ========== ADDITIONAL STYLES FROM BUTTON-FIX.CSS ========== */
+
+/* Font size standardization for summary page */
+.page-header h1 {
+    font-size: 28px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 16px !important;
+}
+
+.toggle-label {
+    font-size: 16px !important;
+}
+
+.summary-table th {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.summary-table td {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+}
+
+.param-description {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* Improved responsive table styling for small screens */
+@media (max-width: 768px) {
+    /* Remove horizontal scrolling and adjust table layout */
+    .table-container,
+    .card {
+        overflow-x: visible !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ensure the table fits within the viewport width */
+    .summary-table {
+        display: table !important;
+        width: 100% !important;
+        min-width: unset !important;
+        table-layout: fixed !important;
+    }
+    
+    /* Hide category column on mobile */
+    .summary-table th.summary-category,
+    .summary-table td.summary-category {
+        display: none !important;
+    }
+    
+    /* Adjust column widths for mobile to prioritize essential info */
+    .summary-table th.summary-param,
+    .summary-table td.summary-param {
+        width: 30% !important;
+        min-width: unset !important;
+        white-space: normal !important;
+    }
+    
+    .summary-table th.summary-value,
+    .summary-table td.summary-value {
+        width: 30% !important;
+        min-width: unset !important;
+    }
+    
+    .summary-table th.summary-default,
+    .summary-table td.summary-default {
+        width: 30% !important;
+        min-width: unset !important;
+    }
+    
+    .summary-table th.summary-actions,
+    .summary-table td.summary-actions {
+        width: 10% !important;
+        min-width: unset !important;
+    }
+    
+    /* Mobile font sizing - maintain readability while conserving space */
+    .page-header h1 {
+        font-size: 24px !important;
+    }
+    
+    /* Ensure text wraps appropriately in cells */
+    .summary-table td {
+        word-break: break-word !important;
+        white-space: normal !important;
+        font-size: 15px !important; /* Slightly smaller on mobile but still very readable */
+        padding: 10px 8px !important;
+        line-height: 1.4 !important;
+    }
+    
+    .summary-table th {
+        font-size: 15px !important;
+    }
+    
+    /* Make parameter descriptions visible */
+    .param-description-row {
+        display: table-row !important;
+    }
+    
+    .param-description {
+        padding: 8px 10px !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+}
+
+/* Alignment fixes for table, button and descriptions */
+/* 1. Button alignment with table */
+.summary-actions {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.download-options {
+    padding: 0 !important;
+    margin: 0 0 15px 0 !important;
+}
+
+/* 2. Table header alignment - remove left padding */
+.summary-table th {
+    padding-left: 0 !important;
+    text-align: left !important;
+}
+
+/* 3. Description alignment with cells above */
+.param-description-row td.param-description {
+    padding-left: 0 !important;
+    text-indent: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Remove extra padding from table cells */
+.summary-table td {
+    padding-left: 0 !important;
+}
+
+/* Add padding specifically to the first column */
+.summary-table th.summary-param,
+.summary-table td.summary-param {
+    padding-left: 8px !important;
+}
+
+/* Match description padding with first column padding */
+.param-description-row td.param-description {
+    padding-left: 8px !important;
+}
+
+/* Ensure table borders are consistent */
+.summary-table {
+    border-collapse: collapse !important;
+}
+
+/* Preserve border styling while fixing alignment */
+.summary-table tr:not(.param-description-row) {
+    border-left: 3px solid var(--primary-color) !important;
+}
+
+/* Special formatting for description row */
+.param-description-row td:before {
+    left: 0 !important;
 } 
