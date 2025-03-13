@@ -1,0 +1,13 @@
+# Ignore all files in these directories
+sessions/*
+uploads/*
+
+# But keep the directories
+!sessions/.gitkeep
+!uploads/.gitkeep
+
+# Other files to ignore
+cookies.txt
+*.log
+.DS_Store
+Thumbs.db 

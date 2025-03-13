@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConfigWiz - Summary of Changes</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <a href="#" onclick="navigateHome(event)" class="header-title">
+            <h1>ConfigWiz</h1>
+            <p>Creo Configuration Management Tool</p>
+        </a>
+        <?php if (isset($_SESSION['user_id'])): ?>
+        <div class="session-info">
+            <i class="fa-solid fa-user"></i> Session: <?= substr($_SESSION['user_id'], 0, 8) ?>...
+        </div>
+        <?php endif; ?>
+    </header>
+
+    <!-- Persistent Search Bar -->
+    <div class="persistent-search">
+        <div class="search-wrapper">
+            <div class="left-buttons">
+                <a href="index.php?route=index" class="search-bar-button">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </a>
+            </div>
+            <div class="search-container">
+                <input type="text" id="global-search" placeholder="Search by name or description...">
+                <div id="global-search-results"></div>
+            </div>
+            <div class="right-buttons">
+                <!-- No specific button needed here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <?php if (isset($_SESSION['flash_message']) && isset($_SESSION['flash_category'])): ?>
+            <div class="flash-messages">
+                <div class="flash-message <?= $_SESSION['flash_category'] ?>">
+                    <?= $_SESSION['flash_message'] ?>
+                </div>
+            </div>
+            <?php
+            // Clear flash messages after displaying them
+            unset($_SESSION['flash_message']);
+            unset($_SESSION['flash_category']);
+            ?>
+        <?php endif; ?>
+
+        <div class="page-header">
+            <h1>Configuration Changes</h1>
+            <div class="toggle-container" <?php if (empty($user_changes)): ?>style="opacity: 0.5; pointer-events: none;"<?php endif; ?>>
+                <input type="checkbox" id="show-descriptions" checked <?php if (empty($user_changes)): ?>disabled<?php endif; ?>>
+                <label for="show-descriptions" class="toggle-label">Show Descriptions</label>
+            </div>
+        </div>
+
+        <?php if (empty($user_changes)): ?>
+        <div class="card">
+            <div class="empty-state">
+                <h2>No Changes</h2>
+                <p>You haven't made any changes to the configuration yet.</p>
+                <a href="index.php?route=index" class="btn primary">Return to Categories</a>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="card">
+            <div class="summary-actions">
+                <div class="download-options">
+                    <a href="#" id="download-config-btn" class="btn primary">
+                        <i class="fa-solid fa-download"></i> Download as config.pro
+                    </a>
+                </div>
+            </div>
+            
+            <?php
+            // Group changes by category - use original categories from config files
+            $changes_by_category = [];
+            foreach ($user_changes as $param_name => $param) {
+                // Get the original category from the config file, not a custom category
+                $original_category = $param['category'] ?? 'Uncategorized';
+                
+                // If we have the parameter in all_parameters, use that category instead
+                if (isset($all_parameters[$param_name]) && isset($all_parameters[$param_name]['Category'])) {
+                    $original_category = $all_parameters[$param_name]['Category'];
+                }
+                
+                if (!isset($changes_by_category[$original_category])) {
+                    $changes_by_category[$original_category] = [];
+                }
+                
+                // Store the original category with the parameter
+                $param['original_category'] = $original_category;
+                $changes_by_category[$original_category][] = $param;
+            }
+            
+            // Sort categories
+            ksort($changes_by_category);
+            ?>
+            
+            <div class="summary-sections">
+                <?php foreach ($changes_by_category as $category => $params): ?>
+                <div class="summary-section">
+                    <h2 class="summary-category"><?= htmlspecialchars($category) ?></h2>
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th class="summary-param">Parameter</th>
+                                <th class="summary-category">Category</th>
+                                <th class="summary-value">New Value</th>
+                                <th class="summary-default">Default Value</th>
+                                <th class="summary-actions">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($params as $param): ?>
+                            <tr>
+                                <td class="summary-param">
+                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
+                                       class="param-link"
+                                       onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
+                                        <?= htmlspecialchars($param['name']) ?>
+                                    </a>
+                                </td>
+                                <td class="summary-category">
+                                    <div class="category-wrapper">
+                                        <?php
+                                        // Get category icon for the original category
+                                        $categoryIcon = get_category_icon($param['original_category']);
+                                        ?>
+                                        <?php if (!empty($categoryIcon)): ?>
+                                        <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
+                                        <?php endif; ?>
+                                        <?= htmlspecialchars($param['original_category']) ?>
+                                    </div>
+                                </td>
+                                <td class="summary-value">
+                                    <?= htmlspecialchars($param['value']) ?>
+                                </td>
+                                <td class="summary-default">
+                                    <?php
+                                    // Look up the default value in the original config data
+                                    $default_value = $param['default_value'] ?? '';
+                                    
+                                    // If there's no default value stored with the parameter, try to find it in the config data
+                                    if (empty($default_value) && isset($all_parameters[$param['name']])) {
+                                        $default_value = $all_parameters[$param['name']]['Default Value'] ?? 
+                                                        $all_parameters[$param['name']]['Value'] ?? '';
+                                    }
+                                    
+                                    // Display "(no value)" if the default value is empty or NaN
+                                    $display_value = (empty($default_value) || strtolower($default_value) === 'nan') ? 
+                                                    '(no value)' : htmlspecialchars($default_value);
+                                    
+                                    // Display with "Default:" in bold and the value in regular text
+                                    echo '<span class="default-label">Default:</span> ' . $display_value;
+                                    ?>
+                                </td>
+                                <td class="summary-actions">
+                                    <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="removeParameter('<?= htmlspecialchars($param['name']) ?>')">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php 
+                            // Add a row for the description (hidden by default)
+                            $description = '';
+                            if (isset($param['description']) && !empty($param['description'])) {
+                                $description = $param['description'];
+                            } else if (isset($all_parameters[$param['name']]['Description'])) {
+                                $description = $all_parameters[$param['name']]['Description'];
+                            }
+                            
+                            // Check for enhanced description from parameter_metadata.csv
+                            if (isset($all_parameters[$param['name']]['EnhancedDescription'])) {
+                                $description = $all_parameters[$param['name']]['EnhancedDescription'];
+                            }
+                            
+                            if (!empty($description)): 
+                            ?>
+                            <tr class="param-description-row" style="display: none;">
+                                <td colspan="5" class="param-description">
+                                    <?= htmlspecialchars($description) ?>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Michael P. Bourque</p>
+        </div>
+    </footer>
+
+    <script src="static/js/script.js?v=<?= time() ?>"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle descriptions visibility
+            const showDescriptionsCheckbox = document.getElementById('show-descriptions');
+            const descriptionRows = document.querySelectorAll('.param-description-row');
+            
+            // Show descriptions by default as the checkbox is checked
+            descriptionRows.forEach(row => {
+                row.style.display = 'table-row';
+            });
+            
+            showDescriptionsCheckbox.addEventListener('change', function() {
+                descriptionRows.forEach(row => {
+                    row.style.display = this.checked ? 'table-row' : 'none';
+                });
+            });
+            
+            // Handle the download button - use Show Descriptions checkbox to determine 
+            // whether to include comments in the config.pro file
+            const downloadBtn = document.getElementById('download-config-btn');
+            
+            downloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const includeComments = document.getElementById('show-descriptions').checked;
+                const downloadUrl = includeComments ? 
+                    'index.php?route=download&include_comments=1' : 
+                    'index.php?route=download';
+                
+                window.location.href = downloadUrl;
+            });
+        });
+        
+        // Parameter deletion using native JavaScript confirm
+        function removeParameter(paramName) {
+            if (confirm(`Are you sure you want to remove "${paramName}" from your configuration changes?`)) {
+                // Create a form with the parameter name
+                var formData = new FormData();
+                formData.append('name', paramName);
+                
+                // Send the request to remove the parameter
+                fetch('index.php?route=remove_change', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Find and fade out the row
+                        const rows = document.querySelectorAll('tr');
+                        for (let i = 0; i < rows.length; i++) {
+                            const paramCell = rows[i].querySelector('.summary-param');
+                            if (paramCell && paramCell.textContent.trim() === paramName) {
+                                rows[i].style.backgroundColor = '#ffcccc';
+                                rows[i].style.opacity = '0';
+                                rows[i].style.transition = 'opacity 0.5s ease';
+                                
+                                // After animation, reload the page
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                                return;
+                            }
+                        }
+                        
+                        // If row not found, just reload
+                        window.location.reload();
+                    } else {
+                        alert('Error removing parameter: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the parameter.');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 
