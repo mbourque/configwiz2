@@ -333,6 +333,8 @@ const ConfigWiz = {
                 let isDifferentFromOriginal;
                 
                 if (this.tagName.toLowerCase() === 'select') {
+                    // For select elements, always compare with the default value
+                    // Ignore the original value as it might contain all options
                     isDifferentFromOriginal = paramValue !== defaultValue;
                     console.log('Select comparison:', {
                         paramValue,
@@ -340,10 +342,12 @@ const ConfigWiz = {
                         isDifferentFromOriginal
                     });
                 } else {
-                    isDifferentFromOriginal = paramValue !== effectiveOriginalValue;
+                    // For text inputs, first try original value, fallback to default
+                    const valueToCompare = originalValue.includes(',') ? defaultValue : effectiveOriginalValue;
+                    isDifferentFromOriginal = paramValue !== valueToCompare;
                     console.log('Text input comparison:', {
                         paramValue,
-                        effectiveOriginalValue,
+                        valueToCompare,
                         isDifferentFromOriginal
                     });
                 }
