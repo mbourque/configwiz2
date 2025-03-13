@@ -1404,6 +1404,20 @@ button:disabled, .btn:disabled {
   margin: 0;
 }
 
+.site-footer a {
+  color: white;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.site-footer a:hover {
+  opacity: 0.8;
+}
+
+.site-footer i {
+  margin-right: 2px;
+}
+
 /* Adjust this for mobile/smaller screens only */
 @media (max-width: 768px) {
   .table-container {
