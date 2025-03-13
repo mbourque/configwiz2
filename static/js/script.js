@@ -373,13 +373,15 @@ const ConfigWiz = {
                     };
                 }
                 
-                // Send the change to the server
+                // Create FormData object for the request
+                const formData = new FormData();
+                for (const [key, value] of Object.entries(params)) {
+                    formData.append(key, value);
+                }
+                
                 fetch(endpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(params)
+                    body: formData
                 })
                 .then(response => {
                     if (!response.ok) {
