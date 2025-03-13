@@ -299,49 +299,46 @@
             });
         });
         
-        // Parameter deletion using native JavaScript confirm
+        // Parameter deletion without confirmation
         function removeParameter(paramName) {
-            if (confirm(`Are you sure you want to remove "${paramName}" from your configuration changes?`)) {
-                // Create a form with the parameter name
-                var formData = new FormData();
-                formData.append('name', paramName);
-                
-                // Send the request to remove the parameter
-                fetch('index.php?route=remove_change', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Find and fade out the row
-                        const rows = document.querySelectorAll('tr');
-                        for (let i = 0; i < rows.length; i++) {
-                            const paramCell = rows[i].querySelector('.summary-param');
-                            if (paramCell && paramCell.textContent.trim() === paramName) {
-                                rows[i].style.backgroundColor = '#ffcccc';
-                                rows[i].style.opacity = '0';
-                                rows[i].style.transition = 'opacity 0.5s ease';
-                                
-                                // After animation, reload the page
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 500);
-                                return;
-                            }
+            // Create a form with the parameter name
+            var formData = new FormData();
+            formData.append('name', paramName);
+            
+            // Send the request to remove the parameter
+            fetch('index.php?route=remove_change', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Find and fade out the row
+                    const rows = document.querySelectorAll('tr');
+                    for (let i = 0; i < rows.length; i++) {
+                        const paramCell = rows[i].querySelector('.summary-param');
+                        if (paramCell && paramCell.textContent.trim() === paramName) {
+                            rows[i].style.backgroundColor = '#ffcccc';
+                            rows[i].style.opacity = '0';
+                            rows[i].style.transition = 'opacity 0.5s ease';
+                            
+                            // After animation, reload the page
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 500);
+                            return;
                         }
-                        
-                        // If row not found, just reload
-                        window.location.reload();
-                    } else {
-                        alert('Error removing parameter: ' + (data.message || 'Unknown error'));
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while removing the parameter.');
-                });
-            }
+                    
+                    // If row not found, just reload
+                    window.location.reload();
+                } else {
+                    console.error('Error removing parameter:', data.message || 'Unknown error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
     </script>
 </body>
