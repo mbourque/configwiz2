@@ -44,11 +44,53 @@
                 <div class="flash-message <?= $_SESSION['flash_category'] ?>">
                     <?= $_SESSION['flash_message'] ?>
                 </div>
+                
+                <?php if (isset($_SESSION['import_stats']) && isset($_SESSION['import_stats']['invalid_parameters']) && is_array($_SESSION['import_stats']['invalid_parameters']) && !empty($_SESSION['import_stats']['invalid_parameters'])): ?>
+                <div class="flash-message warning">
+                    <strong>Warning:</strong> <?= $_SESSION['import_stats']['invalid_count'] ?> total invalid parameter entries were found and removed (<?= count($_SESSION['import_stats']['invalid_parameters']) ?> unique parameters):
+                    <ul class="invalid-params-list">
+                        <?php foreach ($_SESSION['import_stats']['invalid_parameters'] as $invalid_param): ?>
+                        <li><?= htmlspecialchars($invalid_param) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (isset($_SESSION['import_stats']) && isset($_SESSION['import_stats']['mapkeys']) && $_SESSION['import_stats']['mapkeys'] > 0): ?>
+                <div class="flash-message warning">
+                    <strong>Note:</strong> <?= $_SESSION['import_stats']['mapkeys'] ?> mapkey entries were removed. Mapkeys are not supported in this configuration manager.
+                </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['import_stats']) && isset($_SESSION['import_stats']['debug_info']) && !empty($_SESSION['import_stats']['debug_info'])): ?>
+                <div class="flash-message info">
+                    <strong>Debug Info:</strong> 
+                    <ul>
+                        <li>Creo Version: <?= $_SESSION['import_stats']['debug_info']['version'] ?></li>
+                        <li>Valid Parameters Available: <?= $_SESSION['import_stats']['debug_info']['valid_param_count'] ?></li>
+                        <li>Attempted Parameters: <?= count($_SESSION['import_stats']['debug_info']['attempted_params']) ?></li>
+                    </ul>
+                    <?php if (!empty($_SESSION['import_stats']['debug_info']['attempted_params'])): ?>
+                    <p><strong>First few attempted parameters:</strong></p>
+                    <ul class="invalid-params-list">
+                        <?php 
+                        $count = 0;
+                        foreach ($_SESSION['import_stats']['debug_info']['attempted_params'] as $param): 
+                            if ($count++ > 10) break; // Only show first 10
+                        ?>
+                        <li>Line <?= $param['line'] ?>: <?= htmlspecialchars($param['name']) ?> = <?= htmlspecialchars($param['value']) ?> 
+                            (<?= $param['is_valid'] ? 'Valid' : 'Invalid for this Creo version' ?>)</li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
             <?php
             // Clear flash messages after displaying them
             unset($_SESSION['flash_message']);
             unset($_SESSION['flash_category']);
+            unset($_SESSION['import_stats']);
             ?>
         <?php endif; ?>
 
@@ -79,8 +121,8 @@
             </div>
             
             <?php
-            // Group changes by category - use original categories from config files
-            $changes_by_category = [];
+            // Instead of grouping by category, just gather all parameters
+            $all_params = [];
             foreach ($user_changes as $param_name => $param) {
                 // Get the original category from the config file, not a custom category
                 $original_category = $param['category'] ?? 'Uncategorized';
@@ -90,112 +132,156 @@
                     $original_category = $all_parameters[$param_name]['Category'];
                 }
                 
-                if (!isset($changes_by_category[$original_category])) {
-                    $changes_by_category[$original_category] = [];
-                }
-                
                 // Store the original category with the parameter
                 $param['original_category'] = $original_category;
-                $changes_by_category[$original_category][] = $param;
+                $all_params[] = $param;
             }
             
-            // Sort categories
-            ksort($changes_by_category);
+            // Sort all parameters by name
+            usort($all_params, function($a, $b) {
+                return strcmp($a['name'], $b['name']);
+            });
             ?>
             
             <div class="summary-sections">
-                <?php foreach ($changes_by_category as $category => $params): ?>
-                <div class="summary-section">
-                    <h2 class="summary-category"><?= htmlspecialchars($category) ?></h2>
-                    <table class="summary-table">
-                        <thead>
-                            <tr>
-                                <th class="summary-param">Parameter</th>
-                                <th class="summary-category">Category</th>
-                                <th class="summary-value">New Value</th>
-                                <th class="summary-default">Default Value</th>
-                                <th class="summary-actions">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($params as $param): ?>
-                            <tr>
-                                <td class="summary-param">
-                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
-                                       class="param-link"
-                                       onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
-                                        <?= htmlspecialchars($param['name']) ?>
-                                    </a>
-                                </td>
-                                <td class="summary-category">
-                                    <div class="category-wrapper">
-                                        <?php
-                                        // Get category icon for the original category
-                                        $categoryIcon = get_category_icon($param['original_category']);
-                                        ?>
-                                        <?php if (!empty($categoryIcon)): ?>
-                                        <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
-                                        <?php endif; ?>
-                                        <?= htmlspecialchars($param['original_category']) ?>
-                                    </div>
-                                </td>
-                                <td class="summary-value">
-                                    <?= htmlspecialchars($param['value']) ?>
-                                </td>
-                                <td class="summary-default">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th class="summary-param">Parameter</th>
+                            <th class="summary-category">Category</th>
+                            <th class="summary-value">New Value</th>
+                            <th class="summary-default">Default</th>
+                            <th class="summary-actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($all_params as $param): ?>
+                        <tr>
+                            <td class="summary-param">
+                                <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
+                                   class="param-link"
+                                   onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
+                                    <?= htmlspecialchars($param['name']) ?>
+                                </a>
+                            </td>
+                            <td class="summary-category">
+                                <div class="category-wrapper">
                                     <?php
-                                    // Look up the default value in the original config data
-                                    $default_value = $param['default_value'] ?? '';
-                                    
-                                    // If there's no default value stored with the parameter, try to find it in the config data
-                                    if (empty($default_value) && isset($all_parameters[$param['name']])) {
-                                        $default_value = $all_parameters[$param['name']]['Default Value'] ?? 
-                                                        $all_parameters[$param['name']]['Value'] ?? '';
-                                    }
-                                    
-                                    // Display "(no value)" if the default value is empty or NaN
-                                    $display_value = (empty($default_value) || strtolower($default_value) === 'nan') ? 
-                                                    '(no value)' : htmlspecialchars($default_value);
-                                    
-                                    // Display with "Default:" in bold and the value in regular text
-                                    echo '<span class="default-label">Default:</span> ' . $display_value;
+                                    // Get category icon for the original category
+                                    $categoryIcon = get_category_icon($param['original_category']);
                                     ?>
-                                </td>
-                                <td class="summary-actions">
-                                    <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="removeParameter('<?= htmlspecialchars($param['name']) ?>')">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php 
-                            // Add a row for the description (hidden by default)
-                            $description = '';
-                            if (isset($param['description']) && !empty($param['description'])) {
-                                $description = $param['description'];
-                            } else if (isset($all_parameters[$param['name']]['Description'])) {
-                                $description = $all_parameters[$param['name']]['Description'];
-                            }
-                            
-                            // Check for enhanced description from parameter_metadata.csv
-                            if (isset($all_parameters[$param['name']]['EnhancedDescription'])) {
-                                $description = $all_parameters[$param['name']]['EnhancedDescription'];
-                            }
-                            
-                            if (!empty($description)): 
-                            ?>
-                            <tr class="param-description-row" style="display: none;">
-                                <td colspan="5" class="param-description">
-                                    <?= htmlspecialchars($description) ?>
-                                </td>
-                            </tr>
-                            <?php endif; ?>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <?php endforeach; ?>
+                                    <?php if (!empty($categoryIcon)): ?>
+                                    <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
+                                    <?php endif; ?>
+                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
+                                       class="category-link">
+                                        <?= htmlspecialchars($param['original_category']) ?>
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="summary-value">
+                                <?= htmlspecialchars($param['value']) ?>
+                            </td>
+                            <td class="summary-default">
+                                <?php
+                                // Look up the default value in the original config data
+                                $default_value = $param['default_value'] ?? '';
+                                
+                                // If there's no default value stored with the parameter, try to find it in the config data
+                                if (empty($default_value) && isset($all_parameters[$param['name']])) {
+                                    $default_value = $all_parameters[$param['name']]['Default Value'] ?? 
+                                                    $all_parameters[$param['name']]['Value'] ?? '';
+                                }
+                                
+                                // Display "(no value)" if the default value is empty or NaN
+                                $display_value = (empty($default_value) || strtolower($default_value) === 'nan') ? 
+                                                '(no value)' : htmlspecialchars($default_value);
+                                
+                                // Just display the value without the "Default:" prefix
+                                echo $display_value;
+                                ?>
+                            </td>
+                            <td class="summary-actions">
+                                <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="removeParameter('<?= htmlspecialchars($param['name']) ?>')">
+                                    
+                                </button>
+                            </td>
+                        </tr>
+                        <?php 
+                        // Add a row for the description (hidden by default)
+                        $description = '';
+                        if (isset($param['description']) && !empty($param['description'])) {
+                            $description = $param['description'];
+                        } else if (isset($all_parameters[$param['name']]['Description'])) {
+                            $description = $all_parameters[$param['name']]['Description'];
+                        }
+                        
+                        // Check for enhanced description from parameter_metadata.csv
+                        if (isset($all_parameters[$param['name']]['EnhancedDescription'])) {
+                            $description = $all_parameters[$param['name']]['EnhancedDescription'];
+                        }
+                        
+                        if (!empty($description)): 
+                        ?>
+                        <tr class="param-description-row" style="display: none;">
+                            <td colspan="5" class="param-description">
+                                <?= htmlspecialchars($description) ?>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
+        <?php endif; ?>
+
+        <!-- Import Statistics (if coming from import) -->
+        <?php if (isset($_SESSION['import_stats'])): ?>
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h5>Import Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <?php 
+                    $import_stats = $_SESSION['import_stats'];
+                    $debug_info = $import_stats['debug_info'] ?? [];
+                    ?>
+                    
+                    <ul>
+                        <?php if (isset($import_stats['invalid_count']) && $import_stats['invalid_count'] > 0): ?>
+                            <li><strong><?= $import_stats['invalid_count'] ?></strong> invalid parameter(s) were skipped.</li>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($import_stats['mapkeys']) && $import_stats['mapkeys'] > 0): ?>
+                            <li><strong><?= $import_stats['mapkeys'] ?></strong> mapkeys were detected but not imported.</li>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($debug_info['equals_format_count']) || isset($debug_info['space_format_count'])): ?>
+                            <li>Parameter formats detected:
+                                <ul>
+                                    <li>Space-separated format (name value): <strong><?= $debug_info['space_format_count'] ?? 0 ?></strong></li>
+                                    <li>Equals sign format (name = value): <strong><?= $debug_info['equals_format_count'] ?? 0 ?></strong></li>
+                                </ul>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                    
+                    <?php if (!empty($import_stats['invalid'])): ?>
+                        <div class="mt-3">
+                            <p><strong>Invalid parameters:</strong></p>
+                            <div class="invalid-params-list">
+                                <?= implode(', ', $import_stats['invalid']) ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php 
+                    // Clear the import stats from session after displaying
+                    unset($_SESSION['import_stats']);
+                    ?>
+                </div>
+            </div>
         <?php endif; ?>
     </div>
 

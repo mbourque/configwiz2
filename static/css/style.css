@@ -480,6 +480,7 @@ button:hover, .btn:hover {
 
 .summary-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-top: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -489,6 +490,8 @@ button:hover, .btn:hover {
   background-color: white;
   position: static;
   display: table;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 /* Ensure no pseudo-elements appear */
@@ -558,6 +561,9 @@ button:hover, .btn:hover {
   z-index: 1;
   background-color: #f5f9ff;
   box-shadow: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .summary-table tr:hover {
@@ -568,28 +574,43 @@ button:hover, .btn:hover {
   border-bottom: none;
 }
 
-/* Column widths */
-.summary-table th:nth-child(1), 
-.summary-table td:nth-child(1) {
-  width: 25%;
+/* Column widths for the summary table */
+.summary-table th.summary-param, 
+.summary-table td.summary-param {
+  width: auto;
+  white-space: nowrap;
+  min-width: 120px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.summary-table th:nth-child(2), 
-.summary-table td:nth-child(2) {
-  width: 20%;
+.summary-table th.summary-category, 
+.summary-table td.summary-category {
+  width: auto;
+  white-space: nowrap;
+  min-width: 100px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.summary-table th:nth-child(3), 
-.summary-table td:nth-child(3),
-.summary-table th:nth-child(4), 
-.summary-table td:nth-child(4) {
-  width: 25%;
+.summary-table th.summary-value, 
+.summary-table td.summary-value {
+  width: calc((100% - 280px - 80px) / 2);
 }
 
-.summary-table th:nth-child(5), 
-.summary-table td:nth-child(5) {
-  width: 5%;
+.summary-table th.summary-default, 
+.summary-table td.summary-default {
+  width: calc((100% - 280px - 80px) / 2);
+}
+
+.summary-table th.summary-actions, 
+.summary-table td.summary-actions {
+  width: 80px;
+  min-width: 80px;
   text-align: center;
+  white-space: nowrap;
 }
 
 /* Table row default styling */
@@ -605,6 +626,63 @@ button:hover, .btn:hover {
 @media (max-width: 768px) {
   .table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Adjust column widths for mobile */
+  .summary-table th.summary-param, 
+  .summary-table td.summary-param {
+    min-width: 120px;
+    max-width: 140px;
+  }
+  
+  .summary-table th.summary-category, 
+  .summary-table td.summary-category {
+    min-width: 100px;
+    max-width: 120px;
+  }
+  
+  .summary-table th.summary-value, 
+  .summary-table td.summary-value,
+  .summary-table th.summary-default, 
+  .summary-table td.summary-default {
+    min-width: 120px;
+  }
+  
+  .summary-table th.summary-actions, 
+  .summary-table td.summary-actions {
+    min-width: 80px;
+    width: 80px;
+  }
+  
+  /* Adjust padding for table cells on mobile */
+  .summary-table th, 
+  .summary-table td {
+    padding: 12px 8px;
+  }
+  
+  /* Ensure actions column is visible */
+  .summary-table th:last-child,
+  .summary-table td:last-child {
+    position: sticky;
+    right: 0;
+    background-color: #fff;
+    box-shadow: -5px 0 5px rgba(0,0,0,0.1);
+    min-width: 60px;
+    width: 60px;
+  }
+  
+  /* Set header background on mobile scroll */
+  .summary-table th:last-child {
+    background-color: #f5f9ff;
+  }
+
+  /* Make the button more visible without the icon */
+  .btn-remove {
+    min-width: 34px;
+    min-height: 34px;
+    width: 34px;
+    height: 34px;
   }
 }
 
@@ -627,6 +705,11 @@ button:hover, .btn:hover {
   color: #666;
   margin-top: 6px;
   line-height: 1.4;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  padding: 10px 15px;
 }
 
 .param-value {
@@ -646,27 +729,40 @@ button:hover, .btn:hover {
   text-align: center;
 }
 
-.delete-param-btn {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 50%;
-  color: #dc3545;
-  cursor: pointer;
-  height: 32px;
-  width: 32px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  margin: 0 auto;
+/* Improve delete button styling */
+.btn-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da;
+    color: #dc3545;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    margin: 0 auto;
+    cursor: pointer;
+    position: relative;
 }
 
-.delete-param-btn:hover {
-  background-color: #dc3545;
-  color: white;
-  border-color: #dc3545;
-  transform: scale(1.1);
+.btn-remove:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Add a minus symbol using pseudo-elements since we removed the icon */
+.btn-remove:before {
+    content: "";
+    width: 12px;
+    height: 2px;
+    background-color: currentColor;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .changes-count {
@@ -712,6 +808,12 @@ button:hover, .btn:hover {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
+}
+
+.flash-message.info {
+  background-color: #e1f5fe;
+  color: #0277bd;
+  border: 1px solid #b3e5fc;
 }
 
 .flash-message ul.invalid-params-list {
@@ -1902,23 +2004,35 @@ END OLD STYLES */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: transparent;
+    background-color: #f8d7da;
     color: #dc3545;
     border: none;
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
     padding: 0;
+    margin: 0 auto;
     cursor: pointer;
-    transition: all 0.2s;
+    position: relative;
 }
 
 .btn-remove:hover {
-    background-color: #f8d7da;
+    background-color: #dc3545;
+    color: white;
 }
 
-.btn-remove i {
-    font-size: 16px;
+/* Add a minus symbol using pseudo-elements since we removed the icon */
+.btn-remove:before {
+    content: "";
+    width: 12px;
+    height: 2px;
+    background-color: currentColor;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .change-summary {
@@ -1953,6 +2067,51 @@ END OLD STYLES */
   font-size: 14px;
   border-top: none !important;
   line-height: 1.4;
+  border-left: 3px solid var(--primary-color);
+  position: relative;
+}
+
+/* Add a subtle visual connector between parameter and description */
+.param-description-row td:before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #eaeaea;
+}
+
+/* Add a subtle indent and improve spacing */
+.param-description {
+  padding: 10px 10px 10px 15px !important;
+  position: relative;
+}
+
+/* Add a title to the description */
+.param-description:before {
+  content: "Description:";
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--primary-color);
+  font-style: normal;
+}
+
+/* Make sure parameter rows and their descriptions visually group together */
+.summary-table tr:not(.param-description-row):not(:first-child) {
+  border-top: none;
+}
+
+/* Ensure proper spacing between param groups */
+.summary-table tr.param-description-row + tr:not(.param-description-row) {
+  border-top: 18px solid white;
+}
+
+/* Highlight on hover to show connection */
+.summary-table tr:hover,
+.summary-table tr:hover + tr.param-description-row td {
+  background-color: #f0f4f9;
 }
 
 .page-header {
@@ -1980,30 +2139,6 @@ END OLD STYLES */
   margin: 0;
   font-size: 16px;
   color: #555;
-}
-
-/* Column widths for the summary table */
-.summary-table th.summary-param, 
-.summary-table td.summary-param {
-  width: 20%;
-}
-
-.summary-table th.summary-category, 
-.summary-table td.summary-category {
-  width: 25%;
-}
-
-.summary-table th.summary-value, 
-.summary-table td.summary-value,
-.summary-table th.summary-default, 
-.summary-table td.summary-default {
-  width: 20%;
-}
-
-.summary-table th.summary-actions, 
-.summary-table td.summary-actions {
-  width: 5%;
-  text-align: center;
 }
 
 /* Parameter links in summary table */
@@ -2043,4 +2178,240 @@ END OLD STYLES */
 .default-label {
   font-weight: bold;
   color: #333;
+}
+
+/* Add CSS for proper description wrapping in summary table */
+.param-description {
+    word-wrap: break-word;
+    white-space: normal;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 10px 15px;
+}
+
+.summary-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.summary-param {
+    width: 20%;
+}
+
+.summary-category {
+    width: 15%;
+}
+
+.summary-value {
+    width: 30%;
+}
+
+.summary-default {
+    width: 30%;
+}
+
+.summary-actions {
+    width: 5%;
+}
+
+/* Category link styling */
+.category-link {
+    color: #4a74b5;
+    text-decoration: none;
+}
+
+.category-link:hover {
+    text-decoration: underline;
+}
+
+/* Enhance value wrapping in tables */
+.summary-value, .summary-default {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-all; /* Break anywhere for very long words like URLs */
+    max-width: 100%;
+    white-space: normal;
+}
+
+/* Table cell values */
+.summary-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+/* Remove unsupported CSS */
+/* Special handling for URLs and extremely long values */
+/*
+.summary-value a, 
+.summary-default a, 
+.summary-value:has(a), 
+.summary-default:has(a) {
+    word-break: break-all;
+}
+*/
+
+/* Remove unsupported CSS */
+/* URLs and long strings with no spaces */
+/*
+.summary-value:contains("/"), 
+.summary-default:contains("/"),
+.summary-value:contains("http"),
+.summary-default:contains("http") {
+    word-break: break-all;
+}
+*/
+
+/* Ensure table respects set widths and doesn't expand */
+.summary-table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* Fix download button wrapping */
+a#download-config-btn {
+    white-space: nowrap;
+    padding: 8px 16px;
+    min-width: 200px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Improve table layout */
+.summary-table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+}
+
+/* Adjust column widths to fit content better */
+.summary-param {
+    width: 20%;
+}
+
+.summary-category {
+    width: 15%;
+}
+
+.summary-value {
+    width: 30%; 
+}
+
+.summary-default {
+    width: 30%;
+}
+
+.summary-actions {
+    width: 5%;
+}
+
+/* Force content to wrap in cells, preventing overflow */
+.summary-table td {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 15px 10px;
+}
+
+/* Make download options container wider */
+.summary-actions {
+    padding: 15px;
+}
+
+.download-options {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Mobile adjustments for download button */
+@media (max-width: 768px) {
+    a#download-config-btn {
+        min-width: auto;
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .download-options {
+        display: block;
+        width: 100%;
+    }
+}
+
+/* Override the wrapping for the first two columns */
+.summary-table td.summary-param,
+.summary-table td.summary-category {
+    white-space: nowrap;
+}
+
+/* Ensure value and default columns expand to fill available space */
+.summary-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.summary-table th.summary-value, 
+.summary-table td.summary-value,
+.summary-table th.summary-default, 
+.summary-table td.summary-default {
+    width: calc((100% - 280px - 80px) / 2);
+}
+
+/* Ensure proper text handling in value columns */
+.summary-table td.summary-value,
+.summary-table td.summary-default {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+/* Allow "Action" header text to display fully */
+.summary-table th.summary-actions {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Add styles to make parameter rows more distinctive */
+.summary-table tr:not(.param-description-row) {
+    background-color: #f8f9fa;
+    border-bottom: none;
+    border-left: 3px solid var(--primary-color);
+}
+
+.summary-table tr:not(.param-description-row):hover {
+    background-color: #f0f4f9;
+}
+
+/* Make parameter name stand out more */
+.summary-table td.summary-param a {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: var(--primary-dark);
+}
+
+.summary-table td.summary-param a:hover {
+    text-decoration: underline;
+}
+
+/* Adjust spacing between parameter groups to make visual separation clearer */
+.summary-table tr.param-description-row + tr:not(.param-description-row) {
+    border-top: 18px solid white;
+}
+
+/* Ensure consistent hover state between parameter and description */
+.summary-table tr:hover,
+.summary-table tr:hover + tr.param-description-row td {
+    background-color: #f0f4f9;
+}
+
+/* Remove the top border added to non-first rows since we're using spacing */
+.summary-table tr:not(.param-description-row):not(:first-child) {
+    border-top: none;
 } 

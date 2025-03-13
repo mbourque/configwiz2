@@ -458,7 +458,7 @@ function safe_search($row, $query) {
 }
 
 /**
- * Handle file upload for config.pro files
+ * Handle file upload and process the configuration file
  * 
  * @return array Result status and message
  */
@@ -500,7 +500,9 @@ function handle_file_upload() {
     }
     
     // Process the file
-    $parameters = process_config_file($upload_file);
+    $result = process_config_file($upload_file);
+    $parameters = $result['parameters'];
+    $stats = $result['stats'];
     
     // Get existing user changes
     $user_changes = get_user_changes();
@@ -513,17 +515,37 @@ function handle_file_upload() {
             'value' => $param['value'],
             'category' => 'Imported Configuration',
             'description' => $param['description'] ?? '',
-            'default_value' => ''
+            'default_value' => $param['default_value'] ?? ''
         ];
     }
     
     // Save changes back to session
     save_user_changes($user_changes);
     
-    // Return success
+    // Generate a detailed import report
+    $message = "Successfully imported {$stats['valid']} valid parameter(s). ";
+    
+    if ($stats['defaults_removed'] > 0) {
+        $message .= "{$stats['defaults_removed']} parameter(s) that match default values were removed as they are unnecessary. ";
+    }
+    
+    if ($stats['comments_skipped'] > 0) {
+        $message .= "Skipped {$stats['comments_skipped']} comment lines.";
+    }
+    
+    // Create flash messages for additional details
+    $_SESSION['import_stats'] = [
+        'invalid_parameters' => $stats['invalid'],
+        'invalid_count' => $stats['invalid_count'],
+        'mapkeys' => $stats['mapkeys'],
+        'debug_info' => $stats['debug_info']
+    ];
+    
+    // Return success with redirect to summary page
     return [
         'status' => 'success',
-        'message' => 'Configuration file uploaded successfully. ' . count($parameters) . ' parameters imported.'
+        'message' => $message,
+        'redirect' => 'summary' // Indicate to redirect to summary page
     ];
 }
 
@@ -531,18 +553,57 @@ function handle_file_upload() {
  * Process a config.pro file and extract parameters
  * 
  * @param string $file_path Path to the config file
- * @return array Extracted parameters
+ * @return array Processed results including parameters and statistics
  */
 function process_config_file($file_path) {
     // Read the file content
     $content = file_get_contents($file_path);
     $lines = explode("\n", $content);
     
-    $parameters = [];
-    $current_description = '';
-    $in_comment_block = false;
+    // Get the current version's valid parameters
+    $version = $_SESSION['version'] ?? null;
+    if (!$version) {
+        return [
+            'parameters' => [],
+            'stats' => [
+                'valid' => 0,
+                'defaults_removed' => 0,
+                'comments_skipped' => 0,
+                'invalid' => [],
+                'invalid_count' => 0,
+                'mapkeys' => 0,
+                'debug_info' => []
+            ]
+        ];
+    }
     
-    foreach ($lines as $line) {
+    // Load valid parameters for this version
+    $valid_parameters = load_config_data($version);
+    
+    $parameters = [];
+    $invalid_parameters = [];
+    $default_value_matches = [];
+    $comments_count = 0;
+    $mapkeys_count = 0;
+    $debug_info = [
+        'attempted_params' => [],
+        'version' => $version,
+        'valid_param_count' => count($valid_parameters),
+        'equals_format_count' => 0,
+        'space_format_count' => 0
+    ];
+    
+    // Cache a lowercase version of parameter names for case-insensitive matching
+    $valid_parameter_keys_lower = array_map('strtolower', array_keys($valid_parameters));
+    $valid_parameters_by_lowercase = [];
+    foreach ($valid_parameters as $key => $value) {
+        $valid_parameters_by_lowercase[strtolower($key)] = [
+            'original_key' => $key,
+            'data' => $value
+        ];
+    }
+    
+    foreach ($lines as $line_number => $line) {
         $line = trim($line);
         
         // Skip empty lines
@@ -550,33 +611,35 @@ function process_config_file($file_path) {
             continue;
         }
         
-        // Handle comment block
-        if (strpos($line, '/*') === 0) {
-            $in_comment_block = true;
-            $current_description = trim(substr($line, 2));
-            continue;
-        }
-        
-        if ($in_comment_block) {
-            if (strpos($line, '*/') !== false) {
-                $in_comment_block = false;
-                $current_description .= ' ' . trim(substr($line, 0, strpos($line, '*/')));
+        // Skip comment lines and count them
+        if (strpos($line, '!') === 0 || strpos($line, '#') === 0) {
+            // Check if it's a mapkey
+            if (strpos($line, '!mapkey') === 0 || preg_match('/^!.*\s+mapkey\s+/i', $line)) {
+                $mapkeys_count++;
             } else {
-                $current_description .= ' ' . trim($line);
+                $comments_count++;
             }
             continue;
         }
         
-        // Handle single-line comment
-        if (strpos($line, '!') === 0 || strpos($line, '#') === 0) {
-            $current_description = trim(substr($line, 1));
+        // Skip multi-line comments
+        if (strpos($line, '/*') === 0 || strpos($line, '*/') !== false) {
+            $comments_count++;
             continue;
         }
         
-        // Process parameter line
-        if (preg_match('/^([a-zA-Z0-9_\-\.]+)\s*=\s*(.+)$/', $line, $matches)) {
+        // Process parameter line - support both "name = value" and "name value" formats
+        // Primary pattern for space-separated format, falls back to equals sign format
+        if (preg_match('/^([a-zA-Z0-9_\-\.]+)(?:\s+([^=].+)|(?:\s*=\s*)(.+))$/', $line, $matches)) {
             $name = trim($matches[1]);
-            $value = trim($matches[2]);
+            $value = trim($matches[2] ?? $matches[3]); // Use space-separated value if available, otherwise use equals format
+            
+            // Track format type for debugging
+            if (isset($matches[3])) {
+                $debug_info['equals_format_count']++;
+            } else {
+                $debug_info['space_format_count']++;
+            }
             
             // Clean up the value by removing trailing comments
             if (($pos = strpos($value, '!')) !== false) {
@@ -587,19 +650,66 @@ function process_config_file($file_path) {
                 $value = trim(substr($value, 0, $pos));
             }
             
-            // Add to parameters array
-            $parameters[] = [
+            // Use case-insensitive parameter name matching
+            $name_lower = strtolower($name);
+            $is_valid = in_array($name_lower, $valid_parameter_keys_lower);
+            
+            // Add to debug info
+            $debug_info['attempted_params'][] = [
+                'line' => $line_number + 1,
                 'name' => $name,
                 'value' => $value,
-                'description' => $current_description
+                'is_valid' => $is_valid
             ];
             
-            // Reset description
-            $current_description = '';
+            if (!$is_valid) {
+                $invalid_parameters[] = $name;
+                continue;
+            }
+            
+            // Get the original parameter name and data
+            $original_param = $valid_parameters_by_lowercase[$name_lower];
+            $original_name = $original_param['original_key'];
+            $param_data = $original_param['data'];
+            
+            // Check if this matches the default value
+            $default_value = $param_data['Default Value'] ?? '';
+            
+            // Convert to lowercase for case-insensitive comparison when the value is yes/no
+            $normalized_value = strtolower($value);
+            $normalized_default = strtolower($default_value);
+            
+            // Compare values (case-insensitive for yes/no)
+            if (($normalized_value === 'yes' || $normalized_value === 'no') && 
+                ($normalized_value === $normalized_default)) {
+                // Skip parameters that match their default value
+                $default_value_matches[] = $name;
+                continue;
+            }
+            
+            // Parameter is valid - add to parameters array
+            $parameters[] = [
+                'name' => $original_name, // Use the original case from the config file
+                'value' => $value,
+                'description' => $param_data['Description'] ?? '',
+                'default_value' => $default_value
+            ];
         }
     }
     
-    return $parameters;
+    // Return processed parameters and statistics
+    return [
+        'parameters' => $parameters,
+        'stats' => [
+            'valid' => count($parameters),
+            'defaults_removed' => count($default_value_matches),
+            'comments_skipped' => $comments_count,
+            'invalid' => array_unique($invalid_parameters),
+            'invalid_count' => count($invalid_parameters),
+            'mapkeys' => $mapkeys_count,
+            'debug_info' => $debug_info
+        ]
+    ];
 }
 
 /**

@@ -234,15 +234,23 @@ switch ($route) {
                 // Set a success flash message
                 $_SESSION['flash_message'] = $result['message'];
                 $_SESSION['flash_category'] = 'success';
+                
+                // Redirect to summary page if specified
+                if (isset($result['redirect']) && $result['redirect'] === 'summary') {
+                    header('Location: index.php?route=summary');
+                } else {
+                    header('Location: index.php?route=index');
+                }
+                exit;
             } else {
                 // Set an error flash message
                 $_SESSION['flash_message'] = $result['message'];
                 $_SESSION['flash_category'] = 'error';
+                
+                // Redirect back to the index page
+                header('Location: index.php?route=index');
+                exit;
             }
-            
-            // Redirect back to the index page
-            header('Location: index.php?route=index');
-            exit;
         } else {
             // Redirect back to the index page if not a POST request
             header('Location: index.php?route=index');
