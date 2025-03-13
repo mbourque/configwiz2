@@ -167,31 +167,58 @@ const ConfigWiz = {
     
     // Add/remove View Changes button
     updateChangeButtons: function() {
+        console.log('Updating change buttons...');
         // Check for existing changes and update UI
         fetch('./index.php?route=get_changes')
             .then(response => {
+                console.log('Get changes response status:', response.status);
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
                 }
-                return response.json().catch(error => {
-                    console.error('Invalid JSON response:', error);
-                    throw new Error('Invalid JSON response from server');
+                return response.text().then(text => {
+                    console.log('Get changes raw response:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        throw new Error('Invalid JSON response: ' + text);
+                    }
                 });
             })
             .then(data => {
+                console.log('Get changes response data:', data);
+                
                 // Get the View Changes button
                 const viewChangesButton = document.querySelector('.right-buttons .primary');
                 const rightButtons = document.querySelector('.right-buttons');
                 
-                if (!rightButtons) return;
+                console.log('Current UI elements:', {
+                    viewChangesButton: viewChangesButton ? 'exists' : 'not found',
+                    rightButtons: rightButtons ? 'exists' : 'not found'
+                });
+                
+                if (!rightButtons) {
+                    console.warn('Right buttons container not found');
+                    return;
+                }
                 
                 // API returns the user_changes directly
                 const hasChanges = data && Object.keys(data).length > 0;
                 const changedParams = data ? Object.keys(data) : [];
                 
+                console.log('Changes state:', {
+                    hasChanges,
+                    changedParams
+                });
+                
                 // Find all status elements and config items
                 const allStatusElements = document.querySelectorAll('.change-status');
                 const allConfigItems = document.querySelectorAll('.config-item');
+                
+                console.log('Found elements:', {
+                    statusElements: allStatusElements.length,
+                    configItems: allConfigItems.length
+                });
                 
                 // First, reset all status indicators for parameters that are not in the changes list
                 allStatusElements.forEach(statusEl => {
@@ -199,6 +226,7 @@ const ConfigWiz = {
                     if (paramId) {
                         const paramName = paramId.replace('status-', '');
                         if (!changedParams.includes(paramName)) {
+                            console.log('Resetting status for:', paramName);
                             statusEl.innerHTML = '';
                             statusEl.classList.remove('status-changed');
                             
@@ -218,8 +246,10 @@ const ConfigWiz = {
                 });
                 
                 if (hasChanges) {
+                    console.log('Has changes, updating UI...');
                     // Add the button if it doesn't exist
                     if (!viewChangesButton) {
+                        console.log('Creating View Changes button');
                         const newViewChangesButton = document.createElement('a');
                         newViewChangesButton.href = "./index.php?route=summary";
                         newViewChangesButton.className = "search-bar-button primary";
@@ -229,6 +259,7 @@ const ConfigWiz = {
                     
                     // Update status indicators on configure page for parameters that are in the changes list
                     for (const [name, value] of Object.entries(data)) {
+                        console.log('Updating status for changed parameter:', name);
                         const statusElement = document.getElementById(`status-${name}`);
                         if (statusElement) {
                             statusElement.innerHTML = '<span class="status-changed"><i class="fa-solid fa-check"></i> Added to configuration</span>';
@@ -237,15 +268,31 @@ const ConfigWiz = {
                             const configItem = document.getElementById(`param-${name}`);
                             if (configItem && !configItem.classList.contains('modified-parameter')) {
                                 configItem.classList.add('modified-parameter');
+                                
+                                // Add the modified indicator icon if not present
+                                const paramNameElement = configItem.querySelector('.param-name');
+                                if (paramNameElement && !paramNameElement.querySelector('.modified-indicator')) {
+                                    const modifiedIndicator = document.createElement('span');
+                                    modifiedIndicator.className = 'modified-indicator';
+                                    modifiedIndicator.title = 'Modified';
+                                    modifiedIndicator.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                                    paramNameElement.appendChild(modifiedIndicator);
+                                }
                             }
+                        } else {
+                            console.warn('Status element not found for:', name);
                         }
                     }
                 } else {
+                    console.log('No changes, removing View Changes button if exists');
                     // Remove the button if it exists and there are no changes
                     if (viewChangesButton) {
                         viewChangesButton.remove();
                     }
                 }
+            })
+            .catch(error => {
+                console.error('Error updating change buttons:', error);
             });
     },
     
