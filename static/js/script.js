@@ -318,19 +318,10 @@ const ConfigWiz = {
                 let isDifferentFromOriginal;
                 
                 if (this.tagName.toLowerCase() === 'select') {
-                    // For select elements, simply compare with the default value
-                    // This is more reliable than comparing with original_value which might contain comma-separated options
-                    isDifferentFromOriginal = paramValue.trim() !== defaultValue.trim();
-                    console.log("SELECT COMPARISON - Value:", paramValue.trim(), "Default:", defaultValue.trim(), "Different:", isDifferentFromOriginal);
+                    isDifferentFromOriginal = paramValue !== defaultValue;
                 } else {
-                    // For text inputs, use the original value if available, otherwise default value
-                    const originalValue = configItem ? configItem.getAttribute('data-original-value') : '';
-                    const effectiveOriginalValue = originalValue && originalValue.trim() !== '' ? originalValue : defaultValue;
-                    isDifferentFromOriginal = paramValue.trim() !== effectiveOriginalValue.trim();
-                    console.log("TEXT COMPARISON - Value:", paramValue.trim(), "Effective Original:", effectiveOriginalValue.trim(), "Different:", isDifferentFromOriginal);
+                    isDifferentFromOriginal = paramValue !== effectiveOriginalValue;
                 }
-                
-                console.log('Parameter:', paramName, 'Value:', paramValue, 'Default:', defaultValue, 'Original:', originalValue, 'Effective Original:', effectiveOriginalValue, 'Is Different:', isDifferentFromOriginal);
                 
                 // Mark the parameter as modified in the UI
                 if (isDifferentFromOriginal && configItem) {
@@ -355,88 +346,81 @@ const ConfigWiz = {
                     }
                 }
                 
-                // Determine which API endpoint to use based on whether we're saving a change or removing it
-                let endpoint = './index.php?route=save_change';
-                let params = {
-                    'name': paramName,
-                    'value': paramValue,
-                    'category': paramCategory,
-                    'description': paramDescription,
-                    'default_value': defaultValue
-                };
-                
-                // If the value is back to default/original, remove it from changes instead of saving
-                if (!isDifferentFromOriginal) {
-                    endpoint = './index.php?route=remove_change';
-                    params = {
-                        'name': paramName
-                    };
-                }
-                
-                // Create FormData object for the request
+                // Create FormData object
                 const formData = new FormData();
-                for (const [key, value] of Object.entries(params)) {
-                    formData.append(key, value);
-                }
                 
-                fetch(endpoint, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json().catch(error => {
-                        console.error('Invalid JSON response:', error);
-                        throw new Error('Invalid JSON response from server');
-                    });
-                })
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Update the status message
-                        if (statusElement) {
-                            if (isDifferentFromOriginal) {
+                if (isDifferentFromOriginal) {
+                    // If value is different from original/default, save the change
+                    formData.append('name', paramName);
+                    formData.append('value', paramValue);
+                    formData.append('category', paramCategory);
+                    formData.append('description', paramDescription);
+                    formData.append('default_value', defaultValue);
+                    
+                    fetch('./index.php?route=save_change', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-changed"><i class="fa-solid fa-check"></i> Added to configuration</span>';
-                            } else {
-                                // Explicitly remove any classes that might cause the status to remain
-                                statusElement.className = 'change-status';
+                            }
+                            ConfigWiz.updateChangeButtons();
+                        } else {
+                            if (statusElement) {
+                                statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error saving changes:', error);
+                        if (statusElement) {
+                            statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
+                        }
+                    });
+                } else {
+                    // If value matches original/default, remove the change
+                    formData.append('name', paramName);
+                    
+                    fetch('./index.php?route=remove_change', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-restored">Value restored to default</span>';
-                                
-                                // Remove the modified-parameter class
-                                if (configItem) {
-                                    configItem.classList.remove('modified-parameter');
-                                    
-                                    // Also remove any modified indicator that might be present
-                                    const modifiedIndicator = configItem.querySelector('.modified-indicator');
-                                    if (modifiedIndicator) {
-                                        modifiedIndicator.remove();
-                                    }
-                                }
-                                
-                                // Remove the message after a delay
                                 setTimeout(() => {
                                     statusElement.innerHTML = '';
                                 }, 3000);
                             }
+                            ConfigWiz.updateChangeButtons();
+                        } else {
+                            if (statusElement) {
+                                statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
+                            }
                         }
-                        
-                        // Force an immediate update of the UI to reflect changes
-                        ConfigWiz.updateChangeButtons();
-                    } else {
-                        // Show error
+                    })
+                    .catch(error => {
+                        console.error('Error restoring value:', error);
                         if (statusElement) {
-                            statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
+                            statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
                         }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error saving changes:', error);
-                    // Show error in UI
-                    if (statusElement) {
-                        statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
-                    }
-                });
+                    });
+                }
             });
         });
     },
