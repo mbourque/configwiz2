@@ -61,30 +61,6 @@
                     <strong>Note:</strong> <?= $_SESSION['import_stats']['mapkeys'] ?> mapkey entries were removed. Mapkeys are not supported in this configuration manager.
                 </div>
                 <?php endif; ?>
-
-                <?php if (isset($_SESSION['import_stats']) && isset($_SESSION['import_stats']['debug_info']) && !empty($_SESSION['import_stats']['debug_info'])): ?>
-                <div class="flash-message info">
-                    <strong>Debug Info:</strong> 
-                    <ul>
-                        <li>Creo Version: <?= $_SESSION['import_stats']['debug_info']['version'] ?></li>
-                        <li>Valid Parameters Available: <?= $_SESSION['import_stats']['debug_info']['valid_param_count'] ?></li>
-                        <li>Attempted Parameters: <?= count($_SESSION['import_stats']['debug_info']['attempted_params']) ?></li>
-                    </ul>
-                    <?php if (!empty($_SESSION['import_stats']['debug_info']['attempted_params'])): ?>
-                    <p><strong>First few attempted parameters:</strong></p>
-                    <ul class="invalid-params-list">
-                        <?php 
-                        $count = 0;
-                        foreach ($_SESSION['import_stats']['debug_info']['attempted_params'] as $param): 
-                            if ($count++ > 10) break; // Only show first 10
-                        ?>
-                        <li>Line <?= $param['line'] ?>: <?= htmlspecialchars($param['name']) ?> = <?= htmlspecialchars($param['value']) ?> 
-                            (<?= $param['is_valid'] ? 'Valid' : 'Invalid for this Creo version' ?>)</li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
             </div>
             <?php
             // Clear flash messages after displaying them
