@@ -380,12 +380,18 @@ const ConfigWiz = {
                 let isDifferentFromOriginal;
                 
                 if (this.tagName.toLowerCase() === 'select') {
-                    // For select elements, always compare with the default value
-                    // Ignore the original value as it might contain all options
-                    isDifferentFromOriginal = paramValue !== defaultValue;
+                    // For select elements, if original value contains multiple options,
+                    // we need to check if the current value is different from the default
+                    if (originalValue && originalValue.includes(',')) {
+                        isDifferentFromOriginal = paramValue !== defaultValue;
+                    } else {
+                        // If original value is a single value, compare with that
+                        isDifferentFromOriginal = paramValue !== effectiveOriginalValue;
+                    }
                     console.log('Select comparison:', {
                         paramValue,
                         defaultValue,
+                        effectiveOriginalValue,
                         isDifferentFromOriginal
                     });
                 } else {
@@ -478,53 +484,65 @@ const ConfigWiz = {
                         }
                     });
                 } else {
-                    // If value matches original/default, remove the change
-                    formData.append('name', paramName);
-                    
-                    console.log('Sending remove request for:', paramName);
-                    
-                    fetch('./index.php?route=remove_change', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        console.log('Remove response status:', response.status);
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok: ' + response.statusText);
-                        }
-                        return response.text().then(text => {
-                            console.log('Raw response:', text);
-                            try {
-                                return JSON.parse(text);
-                            } catch (e) {
-                                console.error('JSON parse error:', e);
-                                throw new Error('Invalid JSON response: ' + text);
+                    // Only try to remove if we're resetting to default and the parameter might exist
+                    fetch('./index.php?route=get_changes')
+                        .then(response => response.json())
+                        .then(changes => {
+                            // Check if this parameter exists in changes
+                            if (changes && changes[paramName]) {
+                                console.log('Parameter exists in changes, removing:', paramName);
+                                formData.append('name', paramName);
+                                
+                                return fetch('./index.php?route=remove_change', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                            } else {
+                                console.log('Parameter not in changes, skipping remove request');
+                                return null;
+                            }
+                        })
+                        .then(response => {
+                            if (response) {
+                                return response.text().then(text => {
+                                    console.log('Raw response:', text);
+                                    try {
+                                        return JSON.parse(text);
+                                    } catch (e) {
+                                        console.error('JSON parse error:', e);
+                                        throw new Error('Invalid JSON response: ' + text);
+                                    }
+                                });
+                            }
+                            return null;
+                        })
+                        .then(data => {
+                            if (data && data.status === 'success') {
+                                if (statusElement) {
+                                    statusElement.innerHTML = '<span class="status-restored">Value restored to default</span>';
+                                    setTimeout(() => {
+                                        statusElement.innerHTML = '';
+                                    }, 3000);
+                                }
+                                ConfigWiz.updateChangeButtons();
+                            } else if (data && data.status === 'error') {
+                                console.error('Remove failed:', data);
+                                if (statusElement) {
+                                    statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
+                                }
+                            } else {
+                                // Parameter wasn't in changes, just clear the status
+                                if (statusElement) {
+                                    statusElement.innerHTML = '';
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error restoring value:', error);
+                            if (statusElement) {
+                                statusElement.innerHTML = '<span class="status-error">Error restoring value: ' + error.message + '</span>';
                             }
                         });
-                    })
-                    .then(data => {
-                        console.log('Remove response data:', data);
-                        if (data.status === 'success') {
-                            if (statusElement) {
-                                statusElement.innerHTML = '<span class="status-restored">Value restored to default</span>';
-                                setTimeout(() => {
-                                    statusElement.innerHTML = '';
-                                }, 3000);
-                            }
-                            ConfigWiz.updateChangeButtons();
-                        } else {
-                            console.error('Remove failed:', data);
-                            if (statusElement) {
-                                statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error restoring value:', error);
-                        if (statusElement) {
-                            statusElement.innerHTML = '<span class="status-error">Error restoring value: ' + error.message + '</span>';
-                        }
-                    });
                 }
             });
         });
