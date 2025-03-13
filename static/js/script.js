@@ -293,6 +293,8 @@ const ConfigWiz = {
     initAutoSave: function() {
         const autoSaveInputs = document.querySelectorAll('.auto-save');
         
+        console.log('InitAutoSave - Found inputs:', autoSaveInputs.length);
+        
         if (autoSaveInputs.length === 0) return;
         
         autoSaveInputs.forEach(input => {
@@ -305,9 +307,22 @@ const ConfigWiz = {
                 const statusElement = this.closest('.config-item')?.querySelector('.change-status');
                 const configItem = this.closest('.config-item');
                 
+                console.log('Change detected:', {
+                    paramName,
+                    paramValue,
+                    defaultValue,
+                    paramCategory,
+                    paramDescription
+                });
+                
                 // Get the original value from the database (or default if original is empty)
                 const originalValue = configItem ? configItem.getAttribute('data-original-value') : '';
                 const effectiveOriginalValue = originalValue && originalValue.trim() !== '' ? originalValue : defaultValue;
+                
+                console.log('Original values:', {
+                    originalValue,
+                    effectiveOriginalValue
+                });
                 
                 // Show saving indicator
                 if (statusElement) {
@@ -319,31 +334,18 @@ const ConfigWiz = {
                 
                 if (this.tagName.toLowerCase() === 'select') {
                     isDifferentFromOriginal = paramValue !== defaultValue;
+                    console.log('Select comparison:', {
+                        paramValue,
+                        defaultValue,
+                        isDifferentFromOriginal
+                    });
                 } else {
                     isDifferentFromOriginal = paramValue !== effectiveOriginalValue;
-                }
-                
-                // Mark the parameter as modified in the UI
-                if (isDifferentFromOriginal && configItem) {
-                    configItem.classList.add('modified-parameter');
-                    
-                    // Add the modified indicator icon if not present
-                    const paramNameElement = configItem.querySelector('.param-name');
-                    if (paramNameElement && !paramNameElement.querySelector('.modified-indicator')) {
-                        const modifiedIndicator = document.createElement('span');
-                        modifiedIndicator.className = 'modified-indicator';
-                        modifiedIndicator.title = 'Modified';
-                        modifiedIndicator.innerHTML = '<i class="fa-solid fa-pen"></i>';
-                        paramNameElement.appendChild(modifiedIndicator);
-                    }
-                } else if (configItem) {
-                    configItem.classList.remove('modified-parameter');
-                    
-                    // Remove the modified indicator icon
-                    const modifiedIndicator = configItem.querySelector('.modified-indicator');
-                    if (modifiedIndicator) {
-                        modifiedIndicator.remove();
-                    }
+                    console.log('Text input comparison:', {
+                        paramValue,
+                        effectiveOriginalValue,
+                        isDifferentFromOriginal
+                    });
                 }
                 
                 // Create FormData object
@@ -357,23 +359,42 @@ const ConfigWiz = {
                     formData.append('description', paramDescription);
                     formData.append('default_value', defaultValue);
                     
+                    console.log('Sending save request with data:', {
+                        name: paramName,
+                        value: paramValue,
+                        category: paramCategory,
+                        description: paramDescription,
+                        default_value: defaultValue
+                    });
+                    
                     fetch('./index.php?route=save_change', {
                         method: 'POST',
                         body: formData
                     })
                     .then(response => {
+                        console.log('Save response status:', response.status);
                         if (!response.ok) {
                             throw new Error('Network response was not ok: ' + response.statusText);
                         }
-                        return response.json();
+                        return response.text().then(text => {
+                            console.log('Raw response:', text);
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                console.error('JSON parse error:', e);
+                                throw new Error('Invalid JSON response: ' + text);
+                            }
+                        });
                     })
                     .then(data => {
+                        console.log('Save response data:', data);
                         if (data.status === 'success') {
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-changed"><i class="fa-solid fa-check"></i> Added to configuration</span>';
                             }
                             ConfigWiz.updateChangeButtons();
                         } else {
+                            console.error('Save failed:', data);
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
                             }
@@ -382,24 +403,36 @@ const ConfigWiz = {
                     .catch(error => {
                         console.error('Error saving changes:', error);
                         if (statusElement) {
-                            statusElement.innerHTML = '<span class="status-error">Error saving change</span>';
+                            statusElement.innerHTML = '<span class="status-error">Error saving change: ' + error.message + '</span>';
                         }
                     });
                 } else {
                     // If value matches original/default, remove the change
                     formData.append('name', paramName);
                     
+                    console.log('Sending remove request for:', paramName);
+                    
                     fetch('./index.php?route=remove_change', {
                         method: 'POST',
                         body: formData
                     })
                     .then(response => {
+                        console.log('Remove response status:', response.status);
                         if (!response.ok) {
                             throw new Error('Network response was not ok: ' + response.statusText);
                         }
-                        return response.json();
+                        return response.text().then(text => {
+                            console.log('Raw response:', text);
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                console.error('JSON parse error:', e);
+                                throw new Error('Invalid JSON response: ' + text);
+                            }
+                        });
                     })
                     .then(data => {
+                        console.log('Remove response data:', data);
                         if (data.status === 'success') {
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-restored">Value restored to default</span>';
@@ -409,6 +442,7 @@ const ConfigWiz = {
                             }
                             ConfigWiz.updateChangeButtons();
                         } else {
+                            console.error('Remove failed:', data);
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
                             }
@@ -417,7 +451,7 @@ const ConfigWiz = {
                     .catch(error => {
                         console.error('Error restoring value:', error);
                         if (statusElement) {
-                            statusElement.innerHTML = '<span class="status-error">Error restoring value</span>';
+                            statusElement.innerHTML = '<span class="status-error">Error restoring value: ' + error.message + '</span>';
                         }
                     });
                 }
