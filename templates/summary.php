@@ -72,7 +72,7 @@
 
         <div class="page-header">
             <h1>Configuration Changes</h1>
-            <div class="toggle-container" <?php if (empty($user_changes)): ?>style="opacity: 0.5; pointer-events: none;"<?php endif; ?>>
+            <div class="toggle-container<?php if (empty($user_changes)): ?> disabled<?php endif; ?>">
                 <input type="checkbox" id="show-descriptions" checked <?php if (empty($user_changes)): ?>disabled<?php endif; ?>>
                 <label for="show-descriptions" class="toggle-label">Show Descriptions</label>
             </div>
@@ -91,7 +91,7 @@
             <div class="summary-actions">
                 <div class="download-options">
                     <a href="#" id="download-config-btn" class="btn primary" title="Download as config.pro">
-                        <i class="fa-solid fa-download" style="margin-right: 5px;"></i> <span class="btn-text">Download</span>
+                        <i class="fa-solid fa-download download-icon"></i> <span class="btn-text">Download</span>
                     </a>
                 </div>
             </div>

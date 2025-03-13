@@ -2160,4 +2160,13 @@ END OLD STYLES */
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+}
+
+.toggle-container.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.download-icon {
+    margin-right: 5px;
 } 
