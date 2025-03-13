@@ -222,11 +222,17 @@ button:hover, .btn:hover {
 
 .category-icon {
   font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-icon:hover {
   color: var(--primary-color);
-  opacity: 0.8;
-  width: 20px;
-  text-align: center;
-  margin-right: 5px;
+  transform: scale(1.1);
 }
 
 .category-item.active {
@@ -440,257 +446,117 @@ button:hover, .btn:hover {
 
 /* Summary Page */
 .table-container {
-  transform: none !important;
-  height: auto !important;
-  opacity: 1 !important;
-  min-height: 200px; /* Ensure there's enough space for rows */
-  display: block;
-  max-height: none;
-  overflow: visible !important;
-  margin-bottom: 25px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
-  position: relative;
-  padding-top: 0;
-  transform-origin: top left; /* Set transform origin */
-  z-index: 1; /* Ensure proper stacking */
-}
-
-/* Fix for potential clipping in parent containers */
-.container, .card {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
   overflow: visible !important;
 }
 
-/* Remove all possible sources of the line */
-.table-container::before,
-.table-container::after,
-.summary-table::before,
-.summary-table::after,
-.summary-table > *::before,
-.summary-table > *::after {
-  display: none !important;
-  content: none !important;
-  border: none !important;
-  height: 0 !important;
-  background: transparent !important;
-}
-
+/* Basic table setup */
 .summary-table {
   width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
-  margin-top: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  overflow: visible;
+  margin: 0 auto;
+  background: white;
   border: 1px solid var(--border-color);
-  background-color: white;
-  position: static;
-  display: table;
-  max-width: 100%;
-  overflow-wrap: break-word;
+  border-radius: 8px;
+  overflow: hidden;
+  table-layout: fixed;
 }
 
-/* Ensure no pseudo-elements appear */
-.summary-table thead::before,
-.summary-table thead::after,
-.summary-table tbody::before,
-.summary-table tbody::after {
-  display: none !important;
-  content: none !important;
-  border: none !important;
-}
-
-/* Make header row clean with distinctive styling */
-.summary-table thead {
-  background-color: #f5f9ff;
-  border-bottom: 1px solid var(--primary-color-light);
-  position: relative;
-}
-
-.summary-table thead tr {
-  border-radius: 8px 8px 0 0;
-  background-color: #f5f9ff;
-  border: none;
-  display: table-row;
-  position: static;
-  visibility: visible !important;
-}
-
-.summary-table thead tr th {
-  border-top: none;
-  border-bottom: 2px solid var(--primary-color-light);
-  background-color: #f5f9ff;
-  position: static;
-  display: table-cell;
-  visibility: visible !important;
-}
-
-.summary-table tbody {
-  position: static;
-  display: table-row-group;
-  visibility: visible !important;
-  transform: none !important;
-}
-
-.summary-table tr {
-  display: table-row;
-  position: static;
-  visibility: visible !important;
-}
-
-.summary-table td {
-  position: static;
-  display: table-cell;
-  visibility: visible !important;
-}
-
-.summary-table th, .summary-table td {
-  padding: 15px 20px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
+/* Table headers */
 .summary-table th {
-  font-weight: 600;
-  position: relative;
-  top: auto;
-  z-index: 1;
+  text-align: left;
   background-color: #f5f9ff;
-  box-shadow: none;
+  font-weight: 600;
+  padding: 15px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
-.summary-table tr:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+/* Table cells */
+.summary-table td {
+  padding: 15px;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  overflow: visible;
 }
 
-.summary-table tr:last-child td {
-  border-bottom: none;
-}
-
-/* Column widths for the summary table */
-.summary-table th.summary-param, 
-.summary-table td.summary-param {
-  width: auto;
-  white-space: nowrap;
-  min-width: 120px;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.summary-table th.summary-category, 
-.summary-table td.summary-category {
-  width: auto;
-  white-space: nowrap;
-  min-width: 100px;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.summary-table th.summary-value, 
-.summary-table td.summary-value {
-  width: calc((100% - 280px - 80px) / 2);
-}
-
-.summary-table th.summary-default, 
-.summary-table td.summary-default {
-  width: calc((100% - 280px - 80px) / 2);
-}
-
-.summary-table th.summary-actions, 
-.summary-table td.summary-actions {
-  width: 80px;
-  min-width: 80px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* Table row default styling */
-.summary-table tr.is-default {
-  background-color: #FFF8E1;
-}
-
-.summary-table tr.is-default:hover {
-  background-color: #FFE0B2;
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-  .table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Adjust column widths for mobile */
-  .summary-table th.summary-param, 
-  .summary-table td.summary-param {
-    min-width: 120px;
-    max-width: 140px;
-  }
-  
-  .summary-table th.summary-category, 
-  .summary-table td.summary-category {
-    min-width: 100px;
-    max-width: 120px;
-  }
-  
-  .summary-table th.summary-value, 
-  .summary-table td.summary-value,
-  .summary-table th.summary-default, 
-  .summary-table td.summary-default {
-    min-width: 120px;
-  }
-  
-  .summary-table th.summary-actions, 
-  .summary-table td.summary-actions {
-    min-width: 80px;
-    width: 80px;
-  }
-  
-  /* Adjust padding for table cells on mobile */
-  .summary-table th, 
-  .summary-table td {
-    padding: 12px 8px;
-  }
-  
-  /* Ensure actions column is visible */
-  .summary-table th:last-child,
-  .summary-table td:last-child {
-    position: sticky;
-    right: 0;
-    background-color: #fff;
-    box-shadow: -5px 0 5px rgba(0,0,0,0.1);
-    min-width: 60px;
-    width: 60px;
-  }
-  
-  /* Set header background on mobile scroll */
-  .summary-table th:last-child {
-    background-color: #f5f9ff;
-  }
-
-  /* Make the button more visible without the icon */
-  .btn-remove {
-    min-width: 34px;
-    min-height: 34px;
-    width: 34px;
-    height: 34px;
-  }
-}
-
-/* Category styling in tables */
+/* Category styling */
 .category-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.category-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.category-icon {
+  font-size: 18px;
+  color: #666;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.category-link:hover .category-icon {
+  color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+/* Action column */
+.summary-table th.summary-actions,
+.summary-table td.summary-actions {
+  width: 80px;
+  text-align: center;
+}
+
+/* Value columns */
+.summary-table td.summary-value,
+.summary-table td.summary-default {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .summary-table {
+    min-width: 100%;
+  }
+  
+  .summary-table th,
+  .summary-table td {
+    padding: 12px;
+  }
+  
+  .category-wrapper {
+    justify-content: center;
+  }
+}
+
+/* Category wrapper - simplified */
+.category-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  width: 40px; /* Fixed width for the icon column */
 }
 
 .param-name {
@@ -1549,7 +1415,8 @@ button:disabled, .btn:disabled {
 .category-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 40px; /* Fixed width for the icon column */
 }
 
 @media (max-width: 768px) {
@@ -2125,6 +1992,7 @@ END OLD STYLES */
   display: flex;
   align-items: center;
   gap: 15px;
+  white-space: nowrap;
 }
 
 .parameter-count {
@@ -2216,12 +2084,17 @@ END OLD STYLES */
 
 /* Category link styling */
 .category-link {
-    color: #4a74b5;
+    color: #666;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .category-link:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 /* Enhance value wrapping in tables */
@@ -2235,352 +2108,56 @@ END OLD STYLES */
 
 /* Table cell values */
 .summary-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    padding: 15px;
     vertical-align: top;
-}
-
-/* Remove unsupported CSS */
-/* Special handling for URLs and extremely long values */
-/*
-.summary-value a, 
-.summary-default a, 
-.summary-value:has(a), 
-.summary-default:has(a) {
-    word-break: break-all;
-}
-*/
-
-/* Remove unsupported CSS */
-/* URLs and long strings with no spaces */
-/*
-.summary-value:contains("/"), 
-.summary-default:contains("/"),
-.summary-value:contains("http"),
-.summary-default:contains("http") {
-    word-break: break-all;
-}
-*/
-
-/* Ensure table respects set widths and doesn't expand */
-.summary-table {
-    table-layout: fixed;
-    width: 100%;
-    max-width: 100%;
-    overflow-wrap: break-word;
-}
-
-/* Fix download button wrapping */
-a#download-config-btn {
-    white-space: normal !important; /* Allow text to wrap */
-    padding: 10px 20px !important;
-    width: auto !important;
-    max-width: 100% !important;
-    text-align: center !important;
-    display: inline-block !important;
-    overflow: visible !important;
-    word-break: normal !important;
-    overflow-wrap: normal !important;
-    line-height: 1.4 !important;
-    font-size: 16px !important; /* Standard button text size */
-}
-
-/* Improve table layout */
-.summary-table {
-    width: 100%;
-    max-width: 100%;
-    table-layout: fixed;
-}
-
-/* Adjust column widths to fit content better */
-.summary-param {
-    width: 20%;
-}
-
-.summary-category {
-    width: 15%;
-}
-
-.summary-value {
-    width: 30%; 
-}
-
-.summary-default {
-    width: 30%;
-}
-
-.summary-actions {
-    width: 5%;
-}
-
-/* Force content to wrap in cells, preventing overflow */
-.summary-table td {
-    word-break: break-all;
+    word-wrap: break-word;
     overflow-wrap: break-word;
     white-space: normal;
-    max-width: 100%;
-    overflow: hidden;
-    padding: 15px 10px;
+    overflow: visible;
+    text-overflow: clip;
 }
 
-/* Make download options container wider */
-.summary-actions {
-    padding: 15px;
+/* Override any text truncation */
+.summary-table td.summary-param,
+.summary-table td.summary-category,
+.summary-table td.summary-value,
+.summary-table td.summary-default {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
-.download-options {
-    margin-bottom: 15px;
-    width: 100%;
-}
-
-/* Mobile adjustments for download button */
+/* Mobile adjustments */
 @media (max-width: 768px) {
-    a#download-config-btn {
-        min-width: auto;
+    .download-options {
+        display: flex;
+        justify-content: flex-start;
         width: 100%;
-        padding: 12px 16px;
-        font-size: 16px;
-        text-align: center;
-        margin-bottom: 10px;
     }
     
-    .download-options {
-        display: block;
-        width: 100%;
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .summary-table {
+        min-width: 100%;
+    }
+    
+    .summary-table td {
+        padding: 12px;
     }
 }
 
-/* Override the wrapping for the first two columns */
-.summary-table td.summary-param,
-.summary-table td.summary-category {
-    white-space: nowrap;
-}
-
-/* Ensure value and default columns expand to fill available space */
-.summary-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.summary-table th.summary-value, 
-.summary-table td.summary-value,
-.summary-table th.summary-default, 
-.summary-table td.summary-default {
-    width: calc((100% - 280px - 80px) / 2);
-}
-
-/* Ensure proper text handling in value columns */
-.summary-table td.summary-value,
-.summary-table td.summary-default {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-}
-
-/* Allow "Action" header text to display fully */
-.summary-table th.summary-actions {
-  overflow: visible;
-  text-overflow: clip;
-}
-
-/* Add styles to make parameter rows more distinctive */
-.summary-table tr:not(.param-description-row) {
-    background-color: #f8f9fa;
-    border-bottom: none;
+.summary-table td.summary-param {
     border-left: 3px solid var(--primary-color);
 }
 
-.summary-table tr:not(.param-description-row):hover {
-    background-color: #f0f4f9;
-}
-
-/* Make parameter name stand out more */
-.summary-table td.summary-param a {
-    font-weight: 600;
-    font-size: 1.05em;
-    color: var(--primary-dark);
-}
-
-.summary-table td.summary-param a:hover {
-    text-decoration: underline;
-}
-
-/* Adjust spacing between parameter groups to make visual separation clearer */
-.summary-table tr.param-description-row + tr:not(.param-description-row) {
-    border-top: 18px solid white;
-}
-
-/* Ensure consistent hover state between parameter and description */
-.summary-table tr:hover,
-.summary-table tr:hover + tr.param-description-row td {
-    background-color: #f0f4f9;
-}
-
-/* Remove the top border added to non-first rows since we're using spacing */
-.summary-table tr:not(.param-description-row):not(:first-child) {
-    border-top: none;
-}
-
-/* ========== ADDITIONAL STYLES FROM BUTTON-FIX.CSS ========== */
-
-/* Font size standardization for summary page */
-.page-header h1 {
-    font-size: 28px !important;
-    line-height: 1.2 !important;
-    margin-bottom: 16px !important;
-}
-
-.toggle-label {
-    font-size: 16px !important;
-}
-
-.summary-table th {
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-
-.summary-table td {
-    font-size: 16px !important;
-    line-height: 1.5 !important;
-}
-
-.param-description {
-    font-size: 14px !important;
-    line-height: 1.5 !important;
-}
-
-/* Improved responsive table styling for small screens */
-@media (max-width: 768px) {
-    /* Remove horizontal scrolling and adjust table layout */
-    .table-container,
-    .card {
-        overflow-x: visible !important;
-        max-width: 100% !important;
-    }
-    
-    /* Ensure the table fits within the viewport width */
-    .summary-table {
-        display: table !important;
-        width: 100% !important;
-        min-width: unset !important;
-        table-layout: fixed !important;
-    }
-    
-    /* Hide category column on mobile */
-    .summary-table th.summary-category,
-    .summary-table td.summary-category {
-        display: none !important;
-    }
-    
-    /* Adjust column widths for mobile to prioritize essential info */
-    .summary-table th.summary-param,
-    .summary-table td.summary-param {
-        width: 30% !important;
-        min-width: unset !important;
-        white-space: normal !important;
-    }
-    
-    .summary-table th.summary-value,
-    .summary-table td.summary-value {
-        width: 30% !important;
-        min-width: unset !important;
-    }
-    
-    .summary-table th.summary-default,
-    .summary-table td.summary-default {
-        width: 30% !important;
-        min-width: unset !important;
-    }
-    
-    .summary-table th.summary-actions,
-    .summary-table td.summary-actions {
-        width: 10% !important;
-        min-width: unset !important;
-    }
-    
-    /* Mobile font sizing - maintain readability while conserving space */
-    .page-header h1 {
-        font-size: 24px !important;
-    }
-    
-    /* Ensure text wraps appropriately in cells */
-    .summary-table td {
-        word-break: break-word !important;
-        white-space: normal !important;
-        font-size: 15px !important; /* Slightly smaller on mobile but still very readable */
-        padding: 10px 8px !important;
-        line-height: 1.4 !important;
-    }
-    
-    .summary-table th {
-        font-size: 15px !important;
-    }
-    
-    /* Make parameter descriptions visible */
-    .param-description-row {
-        display: table-row !important;
-    }
-    
-    .param-description {
-        padding: 8px 10px !important;
-        font-size: 14px !important;
-        line-height: 1.4 !important;
-    }
-}
-
-/* Alignment fixes for table, button and descriptions */
-/* 1. Button alignment with table */
-.summary-actions {
-    padding: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-.download-options {
-    padding: 0 !important;
-    margin: 0 0 15px 0 !important;
-}
-
-/* 2. Table header alignment - remove left padding */
-.summary-table th {
-    padding-left: 0 !important;
-    text-align: left !important;
-}
-
-/* 3. Description alignment with cells above */
-.param-description-row td.param-description {
-    padding-left: 0 !important;
-    text-indent: 0 !important;
-    padding-top: 0 !important;
-}
-
-/* Remove extra padding from table cells */
-.summary-table td {
-    padding-left: 0 !important;
-}
-
-/* Add padding specifically to the first column */
-.summary-table th.summary-param,
-.summary-table td.summary-param {
-    padding-left: 8px !important;
-}
-
-/* Match description padding with first column padding */
-.param-description-row td.param-description {
-    padding-left: 8px !important;
-}
-
-/* Ensure table borders are consistent */
-.summary-table {
-    border-collapse: collapse !important;
-}
-
-/* Preserve border styling while fixing alignment */
-.summary-table tr:not(.param-description-row) {
-    border-left: 3px solid var(--primary-color) !important;
-}
-
-/* Special formatting for description row */
-.param-description-row td:before {
-    left: 0 !important;
+/* Override any text truncation */
+.summary-table td.summary-param,
+.summary-table td.summary-category,
+.summary-table td.summary-value,
+.summary-table td.summary-default {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 } 
