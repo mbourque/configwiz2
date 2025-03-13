@@ -442,8 +442,28 @@ const ConfigWiz = {
                         if (data.status === 'success') {
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-changed"><i class="fa-solid fa-check"></i> Added to configuration</span>';
+                                
+                                // Also find and add modified class to the config item immediately
+                                const configItem = input.closest('.config-item');
+                                if (configItem) {
+                                    configItem.classList.add('modified-parameter');
+                                    
+                                    // Add modified indicator if not present
+                                    const paramNameElement = configItem.querySelector('.param-name');
+                                    if (paramNameElement && !paramNameElement.querySelector('.modified-indicator')) {
+                                        const modifiedIndicator = document.createElement('span');
+                                        modifiedIndicator.className = 'modified-indicator';
+                                        modifiedIndicator.title = 'Modified';
+                                        modifiedIndicator.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                                        paramNameElement.appendChild(modifiedIndicator);
+                                    }
+                                }
                             }
-                            ConfigWiz.updateChangeButtons();
+                            
+                            // Add a small delay before checking changes to allow server state to update
+                            setTimeout(() => {
+                                ConfigWiz.updateChangeButtons();
+                            }, 500);
                         } else {
                             console.error('Save failed:', data);
                             if (statusElement) {
