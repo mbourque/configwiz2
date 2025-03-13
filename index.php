@@ -56,19 +56,6 @@ switch ($route) {
         $user_changes = get_user_changes();
         $version = $_SESSION['version'] ?? '';
         
-        // Check if there are imported parameters
-        $has_imported_params = false;
-        $imported_count = 0;
-        
-        if (isset($user_changes) && is_array($user_changes)) {
-            foreach ($user_changes as $param) {
-                if (isset($param['category']) && $param['category'] == 'Imported Configuration') {
-                    $has_imported_params = true;
-                    $imported_count++;
-                }
-            }
-        }
-        
         // Include the index template
         include 'templates/index.php';
         break;

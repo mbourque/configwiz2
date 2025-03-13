@@ -90,8 +90,8 @@
         <div class="card">
             <div class="summary-actions">
                 <div class="download-options">
-                    <a href="#" id="download-config-btn" class="btn primary">
-                        <i class="fa-solid fa-download"></i> Download as config.pro
+                    <a href="#" id="download-config-btn" class="btn primary" title="Download as config.pro">
+                        <i class="fa-solid fa-download" style="margin-right: 5px;"></i> <span class="btn-text">Download</span>
                     </a>
                 </div>
             </div>
@@ -123,10 +123,10 @@
                 <table class="summary-table">
                     <thead>
                         <tr>
-                            <th class="summary-param">Parameter</th>
+                            <th class="summary-param">Option</th>
                             <th class="summary-category">Category</th>
-                            <th class="summary-value">New Value</th>
                             <th class="summary-default">Default</th>
+                            <th class="summary-value">New Value</th>
                             <th class="summary-actions">Action</th>
                         </tr>
                     </thead>
@@ -147,16 +147,12 @@
                                     $categoryIcon = get_category_icon($param['original_category']);
                                     ?>
                                     <?php if (!empty($categoryIcon)): ?>
-                                    <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
-                                    <?php endif; ?>
                                     <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
-                                       class="category-link">
-                                        <?= htmlspecialchars($param['original_category']) ?>
+                                       class="category-link" title="Go to <?= htmlspecialchars($param['original_category']) ?>">
+                                        <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
                                     </a>
+                                    <?php endif; ?>
                                 </div>
-                            </td>
-                            <td class="summary-value">
-                                <?= htmlspecialchars($param['value']) ?>
                             </td>
                             <td class="summary-default">
                                 <?php
@@ -176,6 +172,9 @@
                                 // Just display the value without the "Default:" prefix
                                 echo $display_value;
                                 ?>
+                            </td>
+                            <td class="summary-value">
+                                <?= htmlspecialchars($param['value']) ?>
                             </td>
                             <td class="summary-actions">
                                 <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="removeParameter('<?= htmlspecialchars($param['name']) ?>')">

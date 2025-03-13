@@ -25,7 +25,6 @@ $category_icons = [
     'Performance' => 'fa-tachometer-alt',
     'Search' => 'fa-search',
     'Units' => 'fa-ruler-combined',  // More detailed measuring tool
-    'Imported Configuration' => 'fa-file-import',
     
     // CAD/CAM specific categories
     'Additive Manufacturing' => 'fa-layer-group',  // Layered manufacturing
@@ -513,7 +512,7 @@ function handle_file_upload() {
         $user_changes[$name] = [
             'name' => $name,
             'value' => $param['value'],
-            'category' => 'Imported Configuration',
+            'category' => 'System',
             'description' => $param['description'] ?? '',
             'default_value' => $param['default_value'] ?? ''
         ];

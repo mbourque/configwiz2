@@ -107,21 +107,6 @@
             </div>
         </div>
         
-        <?php if ($has_imported_params): ?>
-        <div class="card">
-            <h1>Imported Parameters</h1>
-            <div class="category-list">
-                <div class="category-item imported-category">
-                    <a href="index.php?route=configure&category=<?= urlencode('Imported Configuration') ?>">
-                        <i class="fa-solid <?= get_category_icon('Imported Configuration') ?> category-icon"></i>
-                        Imported Configuration
-                        <span class="badge"><?= $imported_count ?></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
         <div class="nav-links">
             <?php if (!empty($user_changes)): ?>
             <?php endif; ?>
