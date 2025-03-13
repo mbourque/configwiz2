@@ -345,7 +345,7 @@ Categories,Name,AdditionalDescription
 "Newly Added",use_stdtip_osetno_for_flashtip,"Added in Creo 8"
 "Essentials",sketcher_starts_in_2d,"Ensures the sketch opens in a 2D orientation (view normal to the sketch plane), making it easier to begin sketches without manual reorientation."
 "Essentials",sketcher_dimension_autolock,"Locks newly created sketch dimensions by default, preventing them from changing unintentionally and preserving design intent."
-"Essentials",default_abs_accuracy,"Ensure consistent precision across models (especially important for multi-part designs or complex geometry)."
+"Essentials",default_abs_accuracy,"Ensure consistent precision across models (especially important for multi-part designs or complex geometry). Set to .0001"
 "Essentials",accuracy_lower_bound,"Set to .000001 for complex geometry."
 "Essentials",regen_failure_handling,"When set to no_resolve_mode, the system will not enter resolve mode on regeneration failure, allowing you to continue working and fix issues later instead of being interrupted."
 "Essentials",save_objects,"Setting this to changed ensures only objects that have been modified are saved, avoiding needless re-saving of unchanged components and reducing file management overhead."
