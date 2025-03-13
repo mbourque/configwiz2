@@ -1,5 +1,8 @@
 // ConfigWiz - Consolidated JavaScript
 const ConfigWiz = {
+    // Track changes locally to handle race conditions
+    _localChanges: {},
+
     // Initialize all common functionality
     init: function() {
         this.initGlobalSearch();
@@ -188,6 +191,10 @@ const ConfigWiz = {
             .then(data => {
                 console.log('Get changes response data:', data);
                 
+                // Merge server changes with local changes
+                const mergedChanges = { ...data, ...this._localChanges };
+                console.log('Merged changes:', mergedChanges);
+                
                 // Get the View Changes button
                 const viewChangesButton = document.querySelector('.right-buttons .primary');
                 const rightButtons = document.querySelector('.right-buttons');
@@ -202,9 +209,9 @@ const ConfigWiz = {
                     return;
                 }
                 
-                // API returns the user_changes directly
-                const hasChanges = data && Object.keys(data).length > 0;
-                const changedParams = data ? Object.keys(data) : [];
+                // Use merged changes to determine state
+                const hasChanges = Object.keys(mergedChanges).length > 0;
+                const changedParams = Object.keys(mergedChanges);
                 
                 console.log('Changes state:', {
                     hasChanges,
@@ -258,7 +265,7 @@ const ConfigWiz = {
                     }
                     
                     // Update status indicators on configure page for parameters that are in the changes list
-                    for (const [name, value] of Object.entries(data)) {
+                    for (const [name, value] of Object.entries(mergedChanges)) {
                         console.log('Updating status for changed parameter:', name);
                         const statusElement = document.getElementById(`status-${name}`);
                         if (statusElement) {
@@ -446,6 +453,9 @@ const ConfigWiz = {
                     .then(data => {
                         console.log('Save response data:', data);
                         if (data.status === 'success') {
+                            // Add to local changes immediately
+                            ConfigWiz.addLocalChange(paramName, paramValue, paramCategory, paramDescription, defaultValue);
+                            
                             if (statusElement) {
                                 statusElement.innerHTML = '<span class="status-changed"><i class="fa-solid fa-check"></i> Added to configuration</span>';
                                 
@@ -466,10 +476,13 @@ const ConfigWiz = {
                                 }
                             }
                             
-                            // Add a small delay before checking changes to allow server state to update
+                            // Update UI immediately using local state
+                            ConfigWiz.updateChangeButtons();
+                            
+                            // Then check server state after a delay
                             setTimeout(() => {
                                 ConfigWiz.updateChangeButtons();
-                            }, 500);
+                            }, 1000);
                         } else {
                             console.error('Save failed:', data);
                             if (statusElement) {
@@ -518,6 +531,9 @@ const ConfigWiz = {
                         })
                         .then(data => {
                             if (data && data.status === 'success') {
+                                // Remove from local changes immediately
+                                ConfigWiz.removeLocalChange(paramName);
+                                
                                 if (statusElement) {
                                     statusElement.innerHTML = '<span class="status-restored">Value restored to default</span>';
                                     setTimeout(() => {
@@ -867,6 +883,20 @@ const ConfigWiz = {
                 });
             }
         });
+    },
+
+    // Add after init function
+    addLocalChange: function(name, value, category, description, defaultValue) {
+        this._localChanges[name] = {
+            value: value,
+            category: category,
+            description: description,
+            default_value: defaultValue
+        };
+    },
+
+    removeLocalChange: function(name) {
+        delete this._localChanges[name];
     }
 };
 
