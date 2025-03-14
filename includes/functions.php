@@ -140,6 +140,14 @@ function load_parameter_metadata() {
     $metadata = [];
     $header = null;
     
+    // Helper function to clean descriptions
+    $clean_description = function($str) {
+        $str = trim($str, '"');  // Remove quotes
+        $str = trim($str);       // Remove leading/trailing spaces
+        $str = preg_replace('/[.!?]+\s*$/', '', $str);  // Remove trailing punctuation
+        return $str;
+    };
+    
     if (($handle = fopen($metadata_file, "r")) !== false) {
         while (($row = fgetcsv($handle, 1000, ",")) !== false) {
             if ($header === null) {
@@ -151,11 +159,16 @@ function load_parameter_metadata() {
             // Create associative array for each row
             $rowData = [];
             foreach ($header as $i => $key) {
-                $rowData[$key] = $row[$i] ?? '';
+                $value = $row[$i] ?? '';
+                if ($key === 'AdditionalDescription') {
+                    $value = $clean_description($value);
+                }
+                $rowData[$key] = $value;
             }
             
             // Store data by parameter name for quick lookup
-            if (isset($rowData['Name'])) {
+            // Only store the first occurrence of each parameter
+            if (isset($rowData['Name']) && !isset($metadata[$rowData['Name']])) {
                 $metadata[$rowData['Name']] = $rowData;
             }
         }
@@ -195,6 +208,13 @@ function load_config_data($version = null) {
         return [];
     }
     
+    // Helper function to clean descriptions
+    $clean_description = function($str) {
+        $str = trim($str);
+        $str = preg_replace('/[.!?]+\s*$/', '', $str);
+        return $str;
+    };
+    
     // Read CSV data
     $data = [];
     $header = null;
@@ -210,7 +230,11 @@ function load_config_data($version = null) {
             // Create associative array for each row
             $rowData = [];
             foreach ($header as $i => $key) {
-                $rowData[$key] = $row[$i] ?? '';
+                $value = $row[$i] ?? '';
+                if ($key === 'Description') {
+                    $value = $clean_description($value);
+                }
+                $rowData[$key] = $value;
             }
             
             // Map the Value column to Options if it contains comma-separated values
@@ -775,44 +799,88 @@ function generate_config_file($changes, $include_comments = false) {
  * @return array Parameters in the custom category
  */
 function get_parameters_by_custom_category($category_name, $version = null) {
-    // Load metadata
+    // Load metadata and config data
     $metadata = load_parameter_metadata();
-    
-    // Load config data
     $config_data = load_config_data($version);
     
     // Set of parameters in this custom category
     $parameters = [];
     
-    // Process each parameter
+    // Helper function to clean and join descriptions
+    $join_descriptions = function($original, $additional) {
+        // Clean up descriptions by removing trailing punctuation and spaces
+        $clean = function($str) {
+            return trim(preg_replace('/[.!?]+\s*$/', '', trim($str ?? '')));
+        };
+        
+        // Clean both descriptions
+        $original = $clean($original);
+        $additional = $clean($additional);
+        
+        // If either part is empty, just return the non-empty one with a period
+        if (empty($original)) return $additional . '.';
+        if (empty($additional)) return $original . '.';
+        
+        // Join the descriptions with proper punctuation
+        // Remove any trailing periods from the first part to avoid double periods
+        $original = rtrim($original, '. ');
+        return $original . '. ' . $additional . '.';
+    };
+    
+    // First check metadata for parameters in this category
     foreach ($metadata as $param_name => $meta) {
-        if (!empty($meta['Categories']) && $meta['Categories'] === $category_name) {
-            // Find the parameter in config data
+        if (!empty($meta['Categories']) && strcasecmp($meta['Categories'], $category_name) === 0) {
+            // Only include if parameter exists in config data
             if (isset($config_data[$param_name])) {
                 $param_data = $config_data[$param_name];
+                $param_data['Category'] = $category_name;
                 
-                // Add enhanced description if available
+                // Append the metadata description if available
                 if (!empty($meta['AdditionalDescription'])) {
-                    $original_desc = $param_data['Description'] ?? '';
-                    $additional_desc = $meta['AdditionalDescription'];
-                    
-                    // Only add the additional description if it's not already part of the original description
-                    if (!empty($additional_desc) && strpos($original_desc, $additional_desc) === false) {
-                        $param_data['EnhancedDescription'] = $original_desc;
-                        if (!empty($original_desc)) {
-                            $param_data['EnhancedDescription'] .= '. ' . $additional_desc;
-                        } else {
-                            $param_data['EnhancedDescription'] = $additional_desc;
-                        }
+                    $param_data['Description'] = $join_descriptions(
+                        $param_data['Description'],
+                        $meta['AdditionalDescription']
+                    );
+                } else {
+                    // Ensure the description ends with a period
+                    $desc = trim($param_data['Description'] ?? '');
+                    if (!empty($desc) && !preg_match('/[.!?]$/', $desc)) {
+                        $param_data['Description'] = $desc . '.';
                     }
                 }
                 
-                $parameters[] = $param_data;
+                $parameters[$param_name] = $param_data;
+            }
+        }
+    }
+    
+    // Then check config data for any additional parameters in this category
+    foreach ($config_data as $param_name => $param_data) {
+        if (strcasecmp($param_data['Category'] ?? '', $category_name) === 0) {
+            if (!isset($parameters[$param_name])) {
+                $param_data['Category'] = $category_name;
+                
+                // Append the metadata description if available
+                if (isset($metadata[$param_name]) && !empty($metadata[$param_name]['AdditionalDescription'])) {
+                    $param_data['Description'] = $join_descriptions(
+                        $param_data['Description'],
+                        $metadata[$param_name]['AdditionalDescription']
+                    );
+                } else {
+                    // Ensure the description ends with a period
+                    $desc = trim($param_data['Description'] ?? '');
+                    if (!empty($desc) && !preg_match('/[.!?]$/', $desc)) {
+                        $param_data['Description'] = $desc . '.';
+                    }
+                }
+                
+                $parameters[$param_name] = $param_data;
             }
         }
     }
     
     // Sort parameters by name
+    $parameters = array_values($parameters);
     usort($parameters, function($a, $b) {
         return strcmp($a['Name'], $b['Name']);
     });
