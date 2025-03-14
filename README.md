@@ -20,6 +20,7 @@ ConfigWiz is a web-based configuration management tool for Creo Parametric, desi
 - **Import/Export**: Support for importing existing config.pro files and exporting changes
 - **Session Management**: Automatically saves changes to browser session
 - **Mobile-Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Analytics Integration**: Optional Google Analytics support for tracking usage patterns
 
 ## Use it right now!
 Hosted on [my website](https://ptcuserboston.org/configwiz)
@@ -48,6 +49,26 @@ chmod 755 sessions uploads
 ```
 http://your-server/configwiz/
 ```
+
+## Analytics Configuration (Optional)
+
+ConfigWiz includes optional support for Google Analytics to track usage patterns and improve user experience. To enable or disable analytics:
+
+1. Copy the sample configuration file:
+```bash
+cp includes/config.sample.php includes/config.php
+```
+
+2. Edit `includes/config.php` and set your Google Analytics ID:
+```php
+$config = [
+    'google_analytics_id' => 'YOUR-GA-ID-HERE'  // Set to empty string to disable analytics
+];
+```
+
+The `config.php` file is ignored by Git to keep your analytics ID private. If you don't want to use Google Analytics, you can either:
+- Leave the ID empty in `config.php`
+- Don't create the `config.php` file (analytics will be disabled automatically)
 
 ## Configuration File Structure
 
