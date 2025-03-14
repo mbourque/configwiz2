@@ -125,7 +125,7 @@
                         <tr>
                             <th class="summary-param">Option</th>
                             <th class="summary-value">New Value</th>
-                            <th class="summary-actions">Action</th>
+                            <th class="summary-actions"></th>
                         </tr>
                     </thead>
                     <tbody>
