@@ -71,6 +71,7 @@ Categories,Name,AdditionalDescription
 "Sketcher",dwg_sketch_snap_to_model_geom,"Allows snapping to model geometry when sketching in drawings."
 "Sketcher",dwg_sketch_ribbon,"Controls which sketching tools are available in drawing mode."
 "Sketcher",orthogonal_snap,"Controls ability to draw non-orthogonal lines in diagrams."
+"Colors",system_colors_file,"Setup the system color file to your own color file."
 "Colors",color,"Turns colors on or off in the model display."
 "Colors",system_colors_file,"Specifies the system color file for default coloring scheme."
 "Colors",color_resolution,"Controls precision of user-defined colors."
