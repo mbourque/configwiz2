@@ -1,4 +1,4 @@
-i# ConfigWiz
+# ConfigWiz
 
 ConfigWiz is a web-based configuration management tool for Creo Parametric, designed to simplify the process of viewing, modifying, and managing configuration parameters across different versions of Creo.
 
