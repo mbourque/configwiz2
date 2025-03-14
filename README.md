@@ -21,6 +21,8 @@ ConfigWiz is a web-based configuration management tool for Creo Parametric, desi
 - **Session Management**: Automatically saves changes to browser session
 - **Mobile-Responsive Design**: Works on desktop, tablet, and mobile devices
 
+![Online version](https://ptcuserboston.org/configwiz)
+
 ![ConfigWiz Interface](sample-screen.jpg)
 
 ## Installation
