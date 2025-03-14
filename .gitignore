@@ -10,4 +10,10 @@ uploads/*
 cookies.txt
 *.log
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Sensitive configuration files
+includes/config.php
+
+# Other common files to ignore
+.env 
