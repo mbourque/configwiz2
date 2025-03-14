@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container summary-page">
         <?php if (isset($_SESSION['flash_message']) && isset($_SESSION['flash_category'])): ?>
             <div class="flash-messages">
                 <div class="flash-message <?= $_SESSION['flash_category'] ?>">
@@ -124,8 +124,6 @@
                     <thead>
                         <tr>
                             <th class="summary-param">Option</th>
-                            <th class="summary-category">Category</th>
-                            <th class="summary-default">Default</th>
                             <th class="summary-value">New Value</th>
                             <th class="summary-actions">Action</th>
                         </tr>
@@ -134,14 +132,7 @@
                         <?php foreach ($all_params as $param): ?>
                         <tr>
                             <td class="summary-param">
-                                <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
-                                   class="param-link"
-                                   onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
-                                    <?= htmlspecialchars($param['name']) ?>
-                                </a>
-                            </td>
-                            <td class="summary-category">
-                                <div class="category-wrapper">
+                                <div class="param-with-category">
                                     <?php
                                     // Get category icon for the original category
                                     $categoryIcon = get_category_icon($param['original_category']);
@@ -152,26 +143,12 @@
                                         <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
                                     </a>
                                     <?php endif; ?>
+                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
+                                       class="param-link"
+                                       onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
+                                        <?= htmlspecialchars($param['name']) ?>
+                                    </a>
                                 </div>
-                            </td>
-                            <td class="summary-default">
-                                <?php
-                                // Look up the default value in the original config data
-                                $default_value = $param['default_value'] ?? '';
-                                
-                                // If there's no default value stored with the parameter, try to find it in the config data
-                                if (empty($default_value) && isset($all_parameters[$param['name']])) {
-                                    $default_value = $all_parameters[$param['name']]['Default Value'] ?? 
-                                                    $all_parameters[$param['name']]['Value'] ?? '';
-                                }
-                                
-                                // Display "(no value)" if the default value is empty or NaN
-                                $display_value = (empty($default_value) || strtolower($default_value) === 'nan') ? 
-                                                '(no value)' : htmlspecialchars($default_value);
-                                
-                                // Just display the value without the "Default:" prefix
-                                echo $display_value;
-                                ?>
                             </td>
                             <td class="summary-value">
                                 <?= htmlspecialchars($param['value']) ?>
@@ -199,7 +176,7 @@
                         if (!empty($description)): 
                         ?>
                         <tr class="param-description-row" style="display: none;">
-                            <td colspan="5" class="param-description">
+                            <td colspan="3" class="param-description">
                                 <?= htmlspecialchars($description) ?>
                             </td>
                         </tr>

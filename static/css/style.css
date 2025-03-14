@@ -62,8 +62,9 @@ header h1 {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 15px 15px 10px 15px;
+  padding: 15px;
   margin-bottom: 12px;
+  width: 100%;
   overflow: visible;
 }
 
@@ -452,45 +453,87 @@ button:hover, .btn:hover {
   overflow: visible !important;
 }
 
-/* Basic table setup */
+/* Summary sections and table */
+.summary-sections {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.summary-actions {
+  padding: 15px;
+}
+
 .summary-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 auto;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
+  margin: 0;
   table-layout: fixed;
 }
 
-/* Table headers */
-.summary-table th {
-  text-align: left;
-  background-color: #f5f9ff;
-  font-weight: 600;
-  padding: 15px;
-  white-space: nowrap;
-  overflow: visible;
+/* Column widths */
+.summary-table th.summary-param,
+.summary-table td.summary-param {
+  width: 45%;
 }
 
-/* Table cells */
+.summary-table th.summary-value,
+.summary-table td.summary-value {
+  width: 45%;
+}
+
+.summary-table th.summary-actions,
+.summary-table td.summary-actions {
+  width: 10%;
+}
+
+.summary-table th {
+  background-color: var(--secondary-color);
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
 .summary-table td {
   padding: 15px;
-  vertical-align: top;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+/* Ensure proper cell content wrapping */
+.summary-table td.summary-param,
+.summary-table td.summary-category,
+.summary-table td.summary-value {
   white-space: normal;
-  overflow: visible;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .summary-sections {
+    margin: -15px;
+    width: calc(100% + 30px);  /* Compensate for card padding */
+  }
+  
+  .summary-table {
+    min-width: 100%;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 10px;
+  }
 }
 
 /* Category styling */
 .category-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  display: none;
 }
 
 .category-link {
@@ -2183,4 +2226,47 @@ END OLD STYLES */
 
 .download-icon {
     margin-right: 5px;
+}
+
+/* Parameter with category styling */
+.param-with-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.param-with-category .param-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  flex: 1;
+}
+
+.param-with-category .param-link:hover {
+  text-decoration: underline;
+}
+
+.param-with-category .category-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  order: -1;
+}
+
+.param-with-category .category-icon {
+  font-size: 16px;
+  color: #666;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.param-with-category .category-link:hover .category-icon {
+  color: var(--primary-color);
+  transform: scale(1.1);
 } 
