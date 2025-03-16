@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConfigWiz - Summary of Changes</title>
+    <link rel="icon" href="/configwiz/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/configwiz/favicon.ico" type="image/x-icon">
+    <title>ConfigWiz - Configuration Summary</title>
     <?php include_once 'includes/analytics.php'; ?>
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
