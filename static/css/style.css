@@ -1476,10 +1476,7 @@ button:disabled, .btn:disabled {
 
 /* Category wrapper */
 .category-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px; /* Fixed width for the icon column */
+  display: none;
 }
 
 @media (max-width: 768px) {
@@ -2224,8 +2221,6 @@ END OLD STYLES */
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-direction: row;
-  justify-content: flex-start;
 }
 
 .param-with-category .param-link {
@@ -2240,15 +2235,7 @@ END OLD STYLES */
 }
 
 .param-with-category .category-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: inherit;
-  padding: 0;
-  margin: 0;
-  width: auto;
-  order: -1;
+  display: none; /* Hide the category icon link */
 }
 
 .param-with-category .category-icon {

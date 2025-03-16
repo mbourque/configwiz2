@@ -136,16 +136,6 @@
                         <tr>
                             <td class="summary-param">
                                 <div class="param-with-category">
-                                    <?php
-                                    // Get category icon for the original category
-                                    $categoryIcon = get_category_icon($param['original_category']);
-                                    ?>
-                                    <?php if (!empty($categoryIcon)): ?>
-                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
-                                       class="category-link" title="Go to <?= htmlspecialchars($param['original_category']) ?>">
-                                        <i class="fa-solid <?= $categoryIcon ?> category-icon"></i>
-                                    </a>
-                                    <?php endif; ?>
                                     <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
                                        class="param-link"
                                        onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
