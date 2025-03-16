@@ -160,7 +160,7 @@
 
     <footer class="site-footer">
         <div class="footer-content">
-            <p>&copy; 2025 Michael P. Bourque | <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
+            <p>&copy; 2025 <a href="mailto:michael@ptcuserboston.org">Michael P. Bourque</a> | <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
         </div>
     </footer>
 
