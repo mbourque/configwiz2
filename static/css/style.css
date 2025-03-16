@@ -1016,7 +1016,13 @@ button:hover, .btn:hover {
 .param-description {
   font-size: 14px;
   color: #666;
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  padding: 10px 15px;
 }
 
 .param-value {
@@ -2010,21 +2016,6 @@ END OLD STYLES */
 .param-description {
   padding: 10px 10px 10px 15px !important;
   position: relative;
-}
-
-/* Add a title to the description */
-.param-description:before {
-  content: "Description:";
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: var(--primary-color);
-  font-style: normal;
-}
-
-/* Make sure parameter rows and their descriptions visually group together */
-.summary-table tr:not(.param-description-row):not(:first-child) {
-  border-top: none;
 }
 
 /* Ensure proper spacing between param groups */
