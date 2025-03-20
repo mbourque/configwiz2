@@ -230,6 +230,12 @@
         <?php endif; ?>
     </div>
 
+    <!-- Floating back button -->
+    <a href="index.php?route=index" class="floating-back-button" title="Back to Categories">
+        <i class="fa-solid fa-table-cells-large"></i>
+        <span class="tooltip">Back to Categories</span>
+    </a>
+
     <footer class="site-footer">
         <div class="footer-content">
             <p>Created by: <a href="mailto:michael@ptcuserboston.org">Michael P. Bourque</a> | <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
