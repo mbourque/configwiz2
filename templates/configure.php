@@ -158,11 +158,7 @@
         <span class="tooltip">Back to Categories</span>
     </a>
 
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p>Created by: <a href="mailto:michael@ptcuserboston.org">Michael P. Bourque</a> | <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
-        </div>
-    </footer>
+    <?php include_once 'includes/footer.php'; ?>
 
     <script src="static/js/script.js?v=<?= time() . rand(1000, 9999) ?>"></script>
 </body>

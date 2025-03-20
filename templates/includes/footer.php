@@ -1,0 +1,10 @@
+<!-- Site Footer -->
+<footer class="site-footer">
+    <div class="footer-content">
+        <p>Created by: <a href="mailto:michael@ptcuserboston.org">Michael P. Bourque</a> | <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
+    </div>
+</footer>
+
+<script src="static/js/script.js?v=<?= time() ?>"></script>
+</body>
+</html> 
