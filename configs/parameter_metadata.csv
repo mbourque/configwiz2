@@ -357,6 +357,7 @@ Categories,Name,AdditionalDescription
 "Essentials",file_open_default_folder,"Set to Working Directory to save time"
 "Essentials",open_simplified_rep_by_default,"You should be using this all the time."
 "Essentials",spin_with_3d_datum_planes,"If you have a good graphics card, turn it on to spin with 3D datum planes."
+"Recommended",display_combined_views,"Turning this on will give you tabs."
 "Recommended",suppress_license_loss_dialog,"Turning this off will annoy you less."
 "Recommended",sketcher_refit_after_dim_modify,"Disabling this (set to no) prevents the sketch view from automatically refitting (zooming out) after each dimension change, so your view remains focused where you are working."
 "Recommended",spin_center_display,"Turning off the on-screen spin center indicator makes the display less cluttered while rotating the model (the spin center can still be toggled or used as needed)."
