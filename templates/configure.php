@@ -65,7 +65,7 @@
         <?php endif; ?>
 
         <div class="page-header">
-            <h1><i class="fa-solid <?= get_category_icon($category) ?>"></i> Configure <?= $category ?></h1>
+            <h1><i class="fa-solid <?= get_category_icon($category) ?>"></i> <?= $category ?></h1>
         </div>
 
         <div class="card">
