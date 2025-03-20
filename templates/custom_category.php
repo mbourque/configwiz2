@@ -9,7 +9,6 @@
     <?php include_once 'includes/analytics.php'; ?>
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <?php include_once 'includes/favicon.php'; ?>
     <?php 
     // Make sure the category_icons array is available
     global $category_icons;
