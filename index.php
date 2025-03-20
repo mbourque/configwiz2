@@ -114,6 +114,27 @@ switch ($route) {
         include 'templates/summary.php';
         break;
 
+    case 'view_config':
+        // Get user's changes from session
+        $user_changes = get_user_changes();
+        
+        // Check if there are any changes to view
+        if (empty($user_changes)) {
+            header('Content-Type: text/plain');
+            echo "No changes to view.";
+            exit;
+        }
+        
+        // Generate the config.pro content
+        $include_comments = isset($_GET['include_comments']) ? true : false;
+        $config_content = generate_config_file($user_changes, $include_comments);
+        
+        // Return the content as plain text without any processing
+        header('Content-Type: text/plain');
+        echo $config_content;
+        exit;
+        break;
+
     case 'search':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = $_POST['query'] ?? '';

@@ -74,7 +74,7 @@
         <?php endif; ?>
 
         <div class="page-header">
-            <h1>Configuration Changes</h1>
+            <h1>Changes</h1>
             <div class="toggle-container<?php if (empty($user_changes)): ?> disabled<?php endif; ?>">
                 <input type="checkbox" id="show-descriptions" checked <?php if (empty($user_changes)): ?>disabled<?php endif; ?>>
                 <label for="show-descriptions" class="toggle-label">Show Descriptions</label>
@@ -91,10 +91,16 @@
         </div>
         <?php else: ?>
         <div class="card">
-            <div class="summary-actions">
-                <div class="download-options">
+            <div class="config-actions">
+                <div class="config-buttons">
                     <a href="#" id="download-config-btn" class="btn primary" title="Download as config.pro">
-                        <i class="fa-solid fa-download download-icon"></i> <span class="btn-text">Download</span>
+                        <i class="fa-solid fa-download"></i> <span class="btn-text">Download</span>
+                    </a>
+                    <a href="#" id="view-config-btn" class="btn" title="Toggle between view and edit modes">
+                        <i class="fa-solid fa-eye"></i> <span class="btn-text">View Mode</span>
+                    </a>
+                    <a href="#" id="copy-content" class="btn" style="display: none;" title="Copy config.pro content">
+                        <i class="fa-solid fa-copy"></i> <span class="btn-text">Copy All</span>
                     </a>
                 </div>
             </div>
@@ -122,61 +128,69 @@
             });
             ?>
             
-            <div class="summary-sections">
-                <table class="summary-table">
-                    <thead>
-                        <tr>
-                            <th class="summary-param">Option</th>
-                            <th class="summary-value">New Value</th>
-                            <th class="summary-actions"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($all_params as $param): ?>
-                        <tr>
-                            <td class="summary-param">
-                                <div class="param-with-category">
-                                    <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
-                                       class="param-link"
-                                       onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
-                                        <?= htmlspecialchars($param['name']) ?>
-                                    </a>
-                                </div>
-                            </td>
-                            <td class="summary-value">
-                                <?= htmlspecialchars($param['value']) ?>
-                            </td>
-                            <td class="summary-actions">
-                                <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="removeParameter('<?= htmlspecialchars($param['name']) ?>')">
-                                    
-                                </button>
-                            </td>
-                        </tr>
-                        <?php 
-                        // Add a row for the description (hidden by default)
-                        $description = '';
-                        if (isset($param['description']) && !empty($param['description'])) {
-                            $description = $param['description'];
-                        } else if (isset($all_parameters[$param['name']]['Description'])) {
-                            $description = $all_parameters[$param['name']]['Description'];
-                        }
-                        
-                        // Check for enhanced description from parameter_metadata.csv
-                        if (isset($all_parameters[$param['name']]['EnhancedDescription'])) {
-                            $description = $all_parameters[$param['name']]['EnhancedDescription'];
-                        }
-                        
-                        if (!empty($description)): 
-                        ?>
-                        <tr class="param-description-row" style="display: none;">
-                            <td colspan="3" class="param-description">
-                                <?= htmlspecialchars($description) ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div id="summary-content">
+                <div class="summary-sections">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th class="summary-param">Option</th>
+                                <th class="summary-value">New Value</th>
+                                <th class="summary-actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($all_params as $param): ?>
+                            <tr>
+                                <td class="summary-param">
+                                    <div class="param-with-category">
+                                        <a href="index.php?route=configure&category=<?= urlencode($param['original_category']) ?>" 
+                                           class="param-link"
+                                           onclick="localStorage.setItem('highlight_param', '<?= htmlspecialchars($param['name']) ?>'); return true;">
+                                            <?= htmlspecialchars($param['name']) ?>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td class="summary-value">
+                                    <?= htmlspecialchars($param['value']) ?>
+                                </td>
+                                <td class="summary-actions">
+                                    <button class="btn-remove" data-param-name="<?= htmlspecialchars($param['name']) ?>" title="Remove this change" onclick="ConfigWiz.removeParameter('<?= htmlspecialchars($param['name']) ?>')">
+                                        
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php 
+                            // Add a row for the description (hidden by default)
+                            $description = '';
+                            if (isset($param['description']) && !empty($param['description'])) {
+                                $description = $param['description'];
+                            } else if (isset($all_parameters[$param['name']]['Description'])) {
+                                $description = $all_parameters[$param['name']]['Description'];
+                            }
+                            
+                            // Check for enhanced description from parameter_metadata.csv
+                            if (isset($all_parameters[$param['name']]['EnhancedDescription'])) {
+                                $description = $all_parameters[$param['name']]['EnhancedDescription'];
+                            }
+                            
+                            if (!empty($description)): 
+                            ?>
+                            <tr class="param-description-row" style="display: none;">
+                                <td colspan="3" class="param-description">
+                                    <?= htmlspecialchars($description) ?>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="config-content" style="display: none;">
+                <div class="config-view-content">
+                    <pre id="config-text"></pre>
+                </div>
             </div>
         </div>
         <?php endif; ?>
@@ -241,34 +255,134 @@
     <script src="static/js/script.js?v=<?= time() ?>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle descriptions visibility
+            // Get the single checkbox that controls all descriptions
             const showDescriptionsCheckbox = document.getElementById('show-descriptions');
-            const descriptionRows = document.querySelectorAll('.param-description-row');
+            
+            function updateAllDescriptions(show) {
+                // Update parameter descriptions in summary view
+                const descriptionRows = document.querySelectorAll('.param-description-row');
+                descriptionRows.forEach(row => {
+                    row.style.display = show ? 'table-row' : 'none';
+                });
+                
+                // Update category descriptions
+                const categoryDescriptions = document.querySelectorAll('.category-description');
+                categoryDescriptions.forEach(desc => {
+                    desc.style.display = show ? 'block' : 'none';
+                });
+                
+                // Update config view content
+                updateConfigContent();
+            }
             
             // Show descriptions by default as the checkbox is checked
-            descriptionRows.forEach(row => {
-                row.style.display = 'table-row';
-            });
+            updateAllDescriptions(true);
             
-            showDescriptionsCheckbox.addEventListener('change', function() {
-                descriptionRows.forEach(row => {
-                    row.style.display = this.checked ? 'table-row' : 'none';
-                });
-            });
-            
-            // Handle the download button - use Show Descriptions checkbox to determine 
-            // whether to include comments in the config.pro file
+            // Handle view/download toggle
+            const viewBtn = document.getElementById('view-config-btn');
             const downloadBtn = document.getElementById('download-config-btn');
+            const summaryContent = document.getElementById('summary-content');
+            const configContent = document.getElementById('config-content');
+            const configText = document.getElementById('config-text');
+            const copyButton = document.getElementById('copy-content');
             
+            let isViewMode = false;
+            
+            function updateConfigContent() {
+                const includeComments = showDescriptionsCheckbox.checked;
+                fetch(`index.php?route=view_config${includeComments ? '&include_comments=1' : ''}`)
+                    .then(response => response.text())
+                    .then(content => {
+                        configText.textContent = content;
+                    });
+            }
+            
+            // Listen for changes to the main show descriptions checkbox
+            showDescriptionsCheckbox.addEventListener('change', function() {
+                updateAllDescriptions(this.checked);
+            });
+            
+            viewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                isViewMode = !isViewMode;
+                
+                if (isViewMode) {
+                    summaryContent.style.display = 'none';
+                    configContent.style.display = 'block';
+                    viewBtn.classList.add('success');
+                    viewBtn.querySelector('.btn-text').textContent = 'Edit Mode';
+                    copyButton.style.display = 'inline-flex';
+                    updateConfigContent();
+                } else {
+                    summaryContent.style.display = 'block';
+                    configContent.style.display = 'none';
+                    viewBtn.classList.remove('success');
+                    viewBtn.querySelector('.btn-text').textContent = 'View Mode';
+                    copyButton.style.display = 'none';
+                }
+            });
+            
+            // Handle download button click
             downloadBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                const includeComments = document.getElementById('show-descriptions').checked;
+                const includeComments = showDescriptionsCheckbox.checked;
                 const downloadUrl = includeComments ? 
                     'index.php?route=download&include_comments=1' : 
                     'index.php?route=download';
                 
                 window.location.href = downloadUrl;
             });
+            
+            copyButton.addEventListener('click', function() {
+                const textToCopy = configText.textContent;
+                
+                // Try using the Clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showCopySuccess();
+                    }).catch(() => {
+                        fallbackCopyText(textToCopy);
+                    });
+                } else {
+                    fallbackCopyText(textToCopy);
+                }
+            });
+            
+            function showCopySuccess() {
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                }, 2000);
+            }
+            
+            function fallbackCopyText(text) {
+                // Create a temporary textarea element
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                
+                // Make it invisible
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-999999px';
+                textarea.style.top = '-999999px';
+                
+                // Add it to the document
+                document.body.appendChild(textarea);
+                
+                // Select and copy the text
+                textarea.focus();
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess();
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+                
+                // Clean up
+                document.body.removeChild(textarea);
+            }
         });
         
         // Parameter deletion without confirmation
@@ -313,5 +427,78 @@
             });
         }
     </script>
+
+    <style>
+    .config-view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .toggle-comments {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .config-view-content {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 1rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    #config-text {
+        margin: 0;
+        white-space: pre;
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    .btn.success {
+        background-color: var(--success-color);
+    }
+
+    .btn.success:hover {
+        background-color: #218838;
+    }
+
+    .config-actions {
+        margin-bottom: 1rem;
+    }
+
+    .config-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .config-buttons .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        font-size: 15px;
+        height: 36px;
+        white-space: nowrap;
+    }
+
+    .config-buttons .btn i {
+        font-size: 14px;
+    }
+
+    .config-buttons .btn .btn-text {
+        white-space: nowrap;
+    }
+    </style>
 </body>
 </html> 

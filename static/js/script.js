@@ -566,6 +566,7 @@ const ConfigWiz = {
     
     // Summary page specific functionality
     initSummaryPage: function() {
+        this.initConfigView();
         const showCommentsCheckbox = document.getElementById('show-comments');
         const paramDescriptions = document.querySelectorAll('.param-description');
         const deleteParamButtons = document.querySelectorAll('.delete-param-btn');
@@ -897,6 +898,199 @@ const ConfigWiz = {
 
     removeLocalChange: function(name) {
         delete this._localChanges[name];
+    },
+
+    // Config view functionality
+    initConfigView: function() {
+        const showDescriptionsCheckbox = document.getElementById('show-descriptions');
+        const viewBtn = document.getElementById('view-config-btn');
+        const downloadBtn = document.getElementById('download-config-btn');
+        const summaryContent = document.getElementById('summary-content');
+        const configContent = document.getElementById('config-content');
+        const configText = document.getElementById('config-text');
+        const copyButton = document.getElementById('copy-content');
+        
+        if (!showDescriptionsCheckbox) return; // Not on summary page
+        
+        let isViewMode = false;
+        
+        // Initialize descriptions visibility
+        this.updateAllDescriptions(showDescriptionsCheckbox.checked);
+        
+        // Event listeners
+        showDescriptionsCheckbox.addEventListener('change', () => {
+            this.updateAllDescriptions(showDescriptionsCheckbox.checked);
+        });
+        
+        if (viewBtn) {
+            viewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                isViewMode = !isViewMode;
+                
+                if (isViewMode) {
+                    summaryContent.style.display = 'none';
+                    configContent.style.display = 'block';
+                    viewBtn.classList.add('success');
+                    viewBtn.querySelector('.btn-text').textContent = 'Edit Mode';
+                    copyButton.style.display = 'inline-flex';
+                    this.updateConfigContent(showDescriptionsCheckbox.checked);
+                } else {
+                    summaryContent.style.display = 'block';
+                    configContent.style.display = 'none';
+                    viewBtn.classList.remove('success');
+                    viewBtn.querySelector('.btn-text').textContent = 'View Mode';
+                    copyButton.style.display = 'none';
+                }
+            });
+        }
+        
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const includeComments = showDescriptionsCheckbox.checked;
+                const downloadUrl = includeComments ? 
+                    'index.php?route=download&include_comments=1' : 
+                    'index.php?route=download';
+                
+                window.location.href = downloadUrl;
+            });
+        }
+        
+        if (copyButton) {
+            copyButton.addEventListener('click', () => {
+                const textToCopy = configText.textContent;
+                this.copyToClipboard(textToCopy, copyButton);
+            });
+        }
+    },
+    
+    updateAllDescriptions: function(show) {
+        // Update parameter descriptions in summary view
+        const descriptionRows = document.querySelectorAll('.param-description-row');
+        descriptionRows.forEach(row => {
+            row.style.display = show ? 'table-row' : 'none';
+        });
+        
+        // Update category descriptions
+        const categoryDescriptions = document.querySelectorAll('.category-description');
+        categoryDescriptions.forEach(desc => {
+            desc.style.display = show ? 'block' : 'none';
+        });
+        
+        // Update config view content if we're in view mode
+        const configContent = document.getElementById('config-content');
+        if (configContent && configContent.style.display === 'block') {
+            this.updateConfigContent(show);
+        }
+    },
+    
+    updateConfigContent: function(includeComments) {
+        const configText = document.getElementById('config-text');
+        if (!configText) return;
+        
+        fetch(`index.php?route=view_config${includeComments ? '&include_comments=1' : ''}`)
+            .then(response => response.text())
+            .then(content => {
+                configText.textContent = content;
+            });
+    },
+    
+    copyToClipboard: function(text, button) {
+        const showCopySuccess = () => {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        };
+        
+        // Try using the Clipboard API first
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopySuccess();
+            }).catch(() => {
+                this.fallbackCopyText(text, button);
+            });
+        } else {
+            this.fallbackCopyText(text, button);
+        }
+    },
+    
+    fallbackCopyText: function(text, button) {
+        // Create a temporary textarea element
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        
+        // Make it invisible
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        
+        // Add it to the document
+        document.body.appendChild(textarea);
+        
+        // Select and copy the text
+        textarea.focus();
+        textarea.select();
+        
+        try {
+            document.execCommand('copy');
+            this.showCopySuccess(button);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+        
+        // Clean up
+        document.body.removeChild(textarea);
+    },
+    
+    showCopySuccess: function(button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        setTimeout(() => {
+            button.innerHTML = originalText;
+        }, 2000);
+    },
+    
+    removeParameter: function(paramName) {
+        // Create a form with the parameter name
+        var formData = new FormData();
+        formData.append('name', paramName);
+        
+        // Send the request to remove the parameter
+        fetch('index.php?route=remove_change', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Find and fade out the row
+                const rows = document.querySelectorAll('tr');
+                for (let i = 0; i < rows.length; i++) {
+                    const paramCell = rows[i].querySelector('.summary-param');
+                    if (paramCell && paramCell.textContent.trim() === paramName) {
+                        rows[i].style.backgroundColor = '#ffcccc';
+                        rows[i].style.opacity = '0';
+                        rows[i].style.transition = 'opacity 0.5s ease';
+                        
+                        // After animation, reload the page
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                        return;
+                    }
+                }
+                
+                // If row not found, just reload
+                window.location.reload();
+            } else {
+                console.error('Error removing parameter:', data.message || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     }
 };
 

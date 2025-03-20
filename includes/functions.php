@@ -745,7 +745,8 @@ function process_config_file($file_path) {
 function generate_config_file($changes, $include_comments = false) {
     $content = "! ConfigWiz Configuration File\n";
     $content .= "! DISCLAIMER: Use at your own risk. Review configurations carefully.\n";
-    $content .= "! The creators of ConfigWiz take no responsibility for issues arising from these settings.\n";
+    $content .= "! The creators of ConfigWiz take no responsibility for issues or bugs\n";
+    $content .= "! arising from these settings.\n";
     $content .= "! Created for Creo " . ($_SESSION['version'] ?? 'Unknown') . "\n";
     $content .= "! Generated on " . date('Y-m-d H:i:s') . "\n";
     $content .= "!\n";
@@ -765,7 +766,9 @@ function generate_config_file($changes, $include_comments = false) {
     
     // Generate content for each category
     foreach ($categories as $category => $params) {
-        $content .= "! ===== {$category} =====\n";
+        if ($include_comments) {
+            $content .= "! ===== {$category} =====\n";
+        }
         
         // Sort parameters by name
         usort($params, function($a, $b) {
@@ -785,11 +788,19 @@ function generate_config_file($changes, $include_comments = false) {
             }
             
             // Add parameter line
-            $content .= "{$param['name']} = {$param['value']}\n";
+            $content .= "{$param['name']} {$param['value']}\n";
             
-            // Add a newline for readability
-            $content .= "\n";
+            // Add a newline for readability only when showing comments
+            if ($include_comments) {
+                $content .= "\n";
+            }
         }
+    }
+    
+    // Clean up any potential multiple blank lines
+    if (!$include_comments) {
+        // Remove all blank lines when not showing comments
+        $content = preg_replace("/\n\s*\n/", "\n", $content);
     }
     
     return $content;
