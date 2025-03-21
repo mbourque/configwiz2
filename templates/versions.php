@@ -38,7 +38,7 @@
         <?php endif; ?>
 
         <div class="banner">
-            <p>Select a Creo version to configure your CAD/CAM settings. ConfigWiz helps you manage and export your Creo configuration parameters with ease.</p>
+            <p>Select a Creo version to configure your settings. ConfigWiz helps you manage and export your Creo configuration parameters with ease.</p>
         </div>
 
         <?php
