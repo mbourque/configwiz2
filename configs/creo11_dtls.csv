@@ -213,4 +213,4 @@
 "Miscellaneous","yes_no_parameter_display","Controls display of yes/no parameters","yes_no, true_false, 1_0","yes_no"
 "Cross Sections","default_hatch_type","Sets the default crosshatch pattern file type to be used in models and drawings","xch, pat","xch"
 "Cross Sections","hatch_pattern_convert_disp_gal","Specifies which hatch galleries will display patterns converted from XCH to PAT format","drawing, everywhere, hide","drawing"
-"Cross Sections","hatch_pattern_max_update_time","Sets the maximum allowed time to update the hatch display","3.500000","3.500000" 
+"Cross Sections","hatch_pattern_max_update_time","Sets the maximum allowed time to update the hatch display","3.500000","3.500000"
