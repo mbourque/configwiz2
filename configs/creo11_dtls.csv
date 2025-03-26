@@ -1,4 +1,4 @@
-Option Name,Description,Values,Default
+"Option Name","Description","Values","Default"
 2d_region_columns_fit_text,Determines whether each column in a two-dimensional repeat region automatically resizes to fit the longest piece of text in each column and does not overlap adjacent columns or force large gaps in the table,"yes, no",no
 allow_3D_dimensions,Determines if dimensions are shown in isometric views,"yes, no",no
 ang_unit_lead_zeros,Determines if leading zeros are kept when showing angular dimension in degree format to support ASME Y14.5 standard,"yes, no",yes
