@@ -166,7 +166,7 @@ A redesigned search engine with category filters, fuzzy matching, and live previ
 ---
 
 ### **AI Insights**
-integrate natural language processing in artificial intelligence for insights. 
+Integrate natural language processing and artificial intelligence for insights. 
 
 ---
 These planned enhancements reflect the next phase of ConfigWiz: smarter, faster, and more user-focused. Your feedback continues to shape the direction.
