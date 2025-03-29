@@ -1,4 +1,3 @@
-
 # ConfigWiz Installation Guide
 
 This guide explains how to install and deploy ConfigWiz on a local Linux server using NGINX and PHP.
@@ -101,6 +100,24 @@ server {
 
     location ~ /\.ht {
         deny all;
+    }
+
+    # Deny access to .md files (e.g., README.md)
+    location ~* \.md$ {
+        deny all;
+        return 403;
+    }
+
+    # Deny access to hidden files and directories (like .git, .env, .htaccess, etc.)
+    location ~ /\. {
+        deny all;
+        return 403;
+    }
+
+    # Deny access to .git directory (if it exists)
+    location ~ ^/\.git/ {
+        deny all;
+        return 403;
     }
 }
 ```
