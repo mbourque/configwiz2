@@ -51,7 +51,7 @@ sudo chmod -R 750 /var/www/configwiz/sessions /var/www/configwiz/uploads
 
 ## 4. Configure the Application
 
-Move the sample configuration file into place to retain ownership:
+Move the sample configuration file into place for Google Analytics:
 
 ```bash
 sudo mv /var/www/configwiz/includes/config.sample.php /var/www/configwiz/includes/config.php
