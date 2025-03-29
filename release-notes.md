@@ -130,6 +130,11 @@ Intelligent defaults and configuration suggestions based on best practices and u
 
 ---
 
+### **Hidden Config Support**
+A commonly requested feature. 
+
+---
+
 ### **Mapkey Manager**
 A dedicated interface for viewing, organizing, and editing Creo mapkeys. Users will be able to manage key sequences visually, detect conflicts, and export mapkey sets more effectively.
 
