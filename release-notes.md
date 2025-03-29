@@ -113,3 +113,51 @@
 ### Earlier Releases (Pre-0.9.0)
 
 In the very early stages, ConfigWiz focused on building the core functionality of configuration management, laying the foundation for features like parameter comparison and config viewing. These releases were instrumental in establishing the appâ€™s structure and usability.
+
+# Looking Ahead
+
+ConfigWiz is evolving into a powerful tool for managing Creo configurations. The roadmap ahead focuses on transformative features designed to improve productivity, streamline workflows, and unlock smarter configuration strategies.
+
+---
+
+### **Config Wizard**
+An interactive, step-by-step assistant that walks users through creating, modifying, and validating their configuration files. It simplifies the setup process, especially for new users or teams managing multiple environments.
+
+---
+
+### **Smart Recommendations**
+Intelligent defaults and configuration suggestions based on best practices and user behavior. This feature helps streamline decisions by offering context-aware tips and parameters as you build your config.
+
+---
+
+### **Mapkey Manager**
+A dedicated interface for viewing, organizing, and editing Creo mapkeys. Users will be able to manage key sequences visually, detect conflicts, and export mapkey sets more effectively.
+
+---
+
+### **Built-In Suggested Settings**
+A curated library of recommended configurations for different use cases (e.g., drafting, modeling, performance). Users can apply these presets instantly, reducing setup time and improving consistency across teams.
+
+---
+
+### **Visual Color Pickers**
+Inline graphical color selectors for parameters that accept color values. Users can now choose colors using visual tools instead of typing hex codes or RGB values.
+
+---
+
+### **Modelcheck and Config.win Support**
+Expand ConfigWiz to handle additional configuration file types, including `modelcheck` and `config.win`. This allows users to manage a broader range of Creo customization settings from one interface.
+
+---
+
+### **Enhanced Import Experience**
+More control during configuration import: preview changes, merge intelligently, and resolve conflicts before committing. This makes it easier to manage incoming settings without overwriting existing customizations.
+
+---
+
+### **Smarter Search and Navigation**
+A redesigned search engine with category filters, fuzzy matching, and live previews. Users can locate parameters, metadata, and help faster, even in large configuration sets.
+
+---
+
+These planned enhancements reflect the next phase of ConfigWiz: smarter, faster, and more user-focused. Your feedback continues to shape the directionâthank you for helping build the future of configuration management.
