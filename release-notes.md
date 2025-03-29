@@ -6,7 +6,7 @@
 
 **New Features:**
 - Added support for Creo 12: ConfigWiz now fully supports Creo 12 with the necessary configurations for users to manage Creo 12 settings.
-- Modified allow_default_templates options: drawimg_checked, drawing_unchecked
+- Modified allow_default_templates options: drawing_checked, drawing_unchecked
   
 **Improvements:**
 - Enhanced default settings and added categories to improve the organization of configuration files.
