@@ -112,7 +112,7 @@
 
 ### Earlier Releases (Pre-0.9.0)
 
-In the very early stages, ConfigWiz focused on building the core functionality of configuration management, laying the foundation for features like parameter comparison and config viewing. These releases were instrumental in establishing the appâ€™s structure and usability.
+In the very early stages, ConfigWiz focused on building the core functionality of configuration management, laying the foundation for features like parameter comparison and config viewing. These releases were instrumental in establishing the apps structure and usability.
 
 # Looking Ahead
 
