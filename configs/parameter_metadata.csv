@@ -255,7 +255,7 @@ Categories,Name,AdditionalDescription
 "Newly Added",regen_data_sharing_ref_models,"Added in Creo 10"
 "Newly Added",retrieve_relations_ref_model,"Added in Creo 10"
 "Newly Added",simple_hole_create_parameters,"Added in Creo 10"
-"Newly Added",allow_default_templates,"Added in Creo 9, modified in Creo 12"
+"Newly Added",allow_default_templates,"Added in Creo 10, Modified in Creo 12"
 "Newly Added",attach_last_surf_fin_to_cursor,"Added in Creo 9"
 "Newly Added",creo_ansys_study_check_show,"Added in Creo 9"
 "Newly Added",creo_ansys_use_inertia_relief,"Added in Creo 9"
