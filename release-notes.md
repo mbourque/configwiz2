@@ -29,7 +29,7 @@
 **Released on:** 2025-03-26
 
 **Major Updates:**
-- UI overhaul: The applicationâ€™s user interface has undergone significant improvements for better user experience, with clearer layouts and easier navigation.
+- UI overhaul: The applications user interface has undergone significant improvements for better user experience, with clearer layouts and easier navigation.
 - Category improvements: New categories have been introduced, helping users better organize configuration files.
   
 **New Features:**
