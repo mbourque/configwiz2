@@ -1630,7 +1630,7 @@ Without Category,accessory_window_display,Docked - Displays the accessory window
 Without Category,advanced_rendering_mode,"Define the mode used when launching Render Studio.  By default, the Automatic mode checks the graphics card and driver to set the mode appropriately.","auto, gpu, cpu",auto
 Without Category,aec_parameter_file,Specifies the file name of the user defined piping parameter codes.,,
 Without Category,allow_color_change_for_symbols,Controls whether to activate the Color command when you select symbol and surface finish.,"no, yes",yes
-Without Category,allow_default_templates,"Yes/No:  Allow or do not allow default templates.  Drawing:  Allow default templates for drawings, but not other model types.","yes, no, drawing_unchecked, drawing_checked",yes
+Without Category,allow_default_templates,"Yes/No/drawing_checked/drawing_unchecked:  Whether to allow default templates. Drawing: allows for drawings only, and specifies whether the checkbox should be checked or not by default.","yes, no, drawing_unchecked, drawing_checked",yes
 Without Category,allow_delete_many_in_drawings,Make the Delete Many command available in drawing mode. The Delete Many command is not supported by undo but can improve performance when deleting a significant number of items.,"yes, no",no
 Without Category,allow_deprecated_config,Specifies an authorization code to be allowed to use a deprecated config option.,,
 Without Category,allow_duplicate_view_names,"Yes - allow duplicate view names.  No - disallow renaming to duplicate, warn when a drawing has existing duplicates.","yes, no",no
