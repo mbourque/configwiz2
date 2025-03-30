@@ -3,9 +3,9 @@
     <div class="footer-content">
         <p>
             Created by: <a href="mailto:michael@ptcuserboston.org">Michael P. Bourque</a> |
-            <a href="https://ptcuserboston.org/creoverse/" target="_blank">CreoVerse</a> |
             <a href="https://github.com/mbourque/configwiz2/blob/master/release-notes.md" target="_blank">Release Notes</a> |
-            <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+            <a href="https://github.com/mbourque/configwiz2" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a> |
+            <a href="https://ptcuserboston.org/creoverse/" target="_blank">CreoVerse</a>
         </p>
     </div>
 </footer>
