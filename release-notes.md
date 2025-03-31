@@ -120,6 +120,11 @@ ConfigWiz is evolving into a powerful tool for managing Creo configurations. The
 
 ---
 
+### **Support for drawing.dtl files**
+support the management and configuration of Creo DTL files
+
+---
+
 ### **Config Wizard**
 An interactive, step-by-step assistant that walks users through creating, modifying, and validating their configuration files. It simplifies the setup process, especially for new users or teams managing multiple environments.
 
